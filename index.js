@@ -2,7 +2,7 @@
 const fastify = require('fastify')()
 
 fastify.get('/', async (request, reply) => {
-  return { hello: 'kerem' }
+  return { hello: 'cans' }
 })
 
 /**
