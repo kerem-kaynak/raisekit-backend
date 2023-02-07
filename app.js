@@ -16,6 +16,6 @@ const HOST = parseInt(parseInt(process.env.HOST)) || '0.0.0.0'
 
 const start = async () => {
     await fastify.listen({ port: PORT, host: HOST })
-    logger.info(`Server is now listening on port: ${PORT}`)
+    fastify.log.info(`Server is now listening on port: ${PORT}`)
 }
 start()
