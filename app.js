@@ -5,11 +5,7 @@ const fastify = require('fastify')({
 
 fastify.get('/', async (request, reply) => {
 
-<<<<<<< HEAD
-  return { hello: 'berk!' }
-=======
   return { hello: 'tom!' }
->>>>>>> 3c74a1f (test tom)
 
 })
 
