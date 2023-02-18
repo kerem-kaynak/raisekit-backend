@@ -15,6 +15,6 @@
    - '--image'
    - 'gcr.io/$PROJECT_ID/raisekit-backend:$COMMIT_SHA'
    - '--region'
-   - 'europe-west3'
+   - 'europe-west4'
  images:
  - 'gcr.io/$PROJECT_ID/raisekit-backend:$COMMIT_SHA'
