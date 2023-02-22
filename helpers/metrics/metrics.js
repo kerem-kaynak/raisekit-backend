@@ -100,5 +100,64 @@ const calculateExpansionMRR = async (df) => {
 	return expansionMrrSeries
 }
 
+const calculateCustomerLifetime = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var customerLifetimeSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var churnedCustomers = 0
+		var totalCustomers = 0 
+		let currentTimeframe
+		for (let j = 0; j < df.length; j++) {
+			currentTimeframe = timeSeries[i]
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			churnedCustomers += ((currentMrr === 0) && (previousMrr !== 0)) ? 1 : 0
+			totalCustomers += (previousMrr !== 0) ? 1 : 0
+		}
+		const customerLifetimeDatapoint = {[currentTimeframe]: (churnedCustomers !== 0) ? (totalCustomers / churnedCustomers) : 0} 
+		customerLifetimeSeries.push(customerLifetimeDatapoint)
+	}
+	return customerLifetimeSeries
+}
 
-module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR }
+const calculateARPA = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var arpaSeries = []
+	for (let i = 0; i < timeSeries.length; i++) {
+		var mrr = 0
+		var customers = 0
+		for (let j = 0; j < df.length; j++) {
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			mrr += currentMrr
+			customers += ((currentMrr !== 0) ? 1 : 0)
+		}
+		const arpaDatapoint = {[timeSeries[i]]: (customers !== 0) ? (mrr / customers) : 0}
+		arpaSeries.push(arpaDatapoint)
+	}
+	return arpaSeries
+}
+
+const calculateLifetimeValue = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var lifetimeValueSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var churnedCustomers = 0
+		var lastMonthCustomers = 0
+		var mrr = 0
+		var currentCustomers = 0
+		const currentTimeframe = timeSeries[i]
+		for (let j = 0; j < df.length; j++) {
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			churnedCustomers += ((currentMrr === 0) && (previousMrr !== 0)) ? 1 : 0
+			lastMonthCustomers += (previousMrr !== 0) ? 1 : 0
+			mrr += currentMrr
+			currentCustomers += ((currentMrr !== 0) ? 1 : 0)
+		}
+		const lifetimeValueDatapoint = {[currentTimeframe]: ((churnedCustomers !== 0) && (currentCustomers !== 0)) ? ((lastMonthCustomers / churnedCustomers) * (mrr / currentCustomers)) : 0}
+		lifetimeValueSeries.push(lifetimeValueDatapoint)
+	}
+	return lifetimeValueSeries
+}
+
+module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue }

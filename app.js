@@ -9,7 +9,10 @@ const {
 	calculateNewMRR,
 	calculateChurnedMRR,
 	calculateContractionMRR,
-	calculateExpansionMRR
+	calculateExpansionMRR,
+	calculateCustomerLifetime,
+	calculateARPA,
+	calculateLifetimeValue
 } = require('./helpers/metrics/metrics')
 
 fastify.get('/', async (req, res) => {
@@ -94,6 +97,48 @@ fastify.route({
 	handler: async function (req, res) {
 		try {
 			const result = await calculateExpansionMRR(req.body)
+			res.status(200).send(result)
+		} catch (err) {
+			fastify.log.error(err)
+			res.send(500)
+		}
+	}
+})
+
+fastify.route({
+	method: 'POST',
+	url: '/api/v0/metrics/customer_lifetime',
+	handler: async function (req, res) {
+		try {
+			const result = await calculateCustomerLifetime(req.body)
+			res.status(200).send(result)
+		} catch (err) {
+			fastify.log.error(err)
+			res.send(500)
+		}
+	}
+})
+
+fastify.route({
+	method: 'POST',
+	url: '/api/v0/metrics/arpa',
+	handler: async function (req, res) {
+		try {
+			const result = await calculateARPA(req.body)
+			res.status(200).send(result)
+		} catch (err) {
+			fastify.log.error(err)
+			res.send(500)
+		}
+	}
+})
+
+fastify.route({
+	method: 'POST',
+	url: '/api/v0/metrics/lifetime_value',
+	handler: async function (req, res) {
+		try {
+			const result = await calculateLifetimeValue(req.body)
 			res.status(200).send(result)
 		} catch (err) {
 			fastify.log.error(err)
