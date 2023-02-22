@@ -114,7 +114,7 @@ const calculateLogoRetentionRate = async (df) => {
 			retainedCustomers += ((currentMrr !== 0) && (previousMrr !== 0)) ? 1 : 0
 			totalCustomers += (previousMrr !== 0) ? 1 : 0
 		}
-		const logoRetentionDatapoint = {[currentTimeframe]: (retainedCustomers / totalCustomers)}
+		const logoRetentionDatapoint = {[currentTimeframe]: (totalCustomers !== 0) ? (retainedCustomers / totalCustomers) : 0}
 		logoRetentionSeries.push(logoRetentionDatapoint)
 	}
 	return logoRetentionSeries
@@ -134,7 +134,7 @@ const calculateLogoChurnRate = async (df) => {
 			churnedCustomers += ((currentMrr === 0) && (previousMrr !== 0)) ? 1 : 0
 			totalCustomers += (previousMrr !== 0) ? 1 : 0
 		}
-		const logoChurnDatapoint = {[currentTimeframe]: (churnedCustomers / totalCustomers)}
+		const logoChurnDatapoint = {[currentTimeframe]: (totalCustomers !== 0) ? (churnedCustomers / totalCustomers) : 0}
 		logoChurnSeries.push(logoChurnDatapoint)
 	}
 	return logoChurnSeries
