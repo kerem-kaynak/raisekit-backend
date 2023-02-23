@@ -159,5 +159,55 @@ const calculateLifetimeValue = async (df) => {
 	}
 	return lifetimeValueSeries
 }
+const calculateCustomers = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var customersSeries = []
+	timeSeries.forEach((element) => {
+		var sum = 0
+		for (let i = 0; i < df.length; i++) {
+			if (df[i][element] != 0) { sum++ }
+		}
+		const customersDatapoint = {[element]: sum}
+		customersSeries.push(customersDatapoint)
+	})
+	return customersSeries
+}
 
-module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue }
+const calculateNewCustomers = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var newCustomersSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var sum = 0
+		let currentTimeframe
+		for (let j = 0; j < df.length; j++) {
+			currentTimeframe = timeSeries[i]
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			sum += ((previousMrr === 0) && (currentMrr !== 0)) ? 1 : 0
+		}
+		const newCustomerDatapoint = {[currentTimeframe]: sum}
+		newCustomersSeries.push(newCustomerDatapoint)
+	}
+	return newCustomersSeries
+}
+
+const calculateChurnedCustomers = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var churnedCustomersSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var sum = 0
+		let currentTimeframe
+		for (let j = 0; j < df.length; j++) {
+			currentTimeframe = timeSeries[i]
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			sum += ((previousMrr !== 0) && (currentMrr === 0)) ? -1 : 0
+		}
+		const churnedCustomerDatapoint = {[currentTimeframe]: sum}
+		churnedCustomersSeries.push(churnedCustomerDatapoint)
+	}
+	return churnedCustomersSeries
+}
+module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue,calculateCustomers, calculateNewCustomers, calculateChurnedCustomers }
+
+
