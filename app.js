@@ -20,7 +20,7 @@ const {
 
 fastify.get('/', async (req, res) => {
 
-	return { hello: 'test!' }
+	return { hello: 'test2!' }
 
 })
 
