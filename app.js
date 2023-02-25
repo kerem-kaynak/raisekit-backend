@@ -21,7 +21,7 @@ const {
 } = require('./helpers/metrics/metrics')
 
 fastify.get('/', async (req, res) => {
-	res.STATUS(200).send({ hello: 'test2!', req: req })
+	res.status(200).send({ hello: 'test2!', req: req })
 })
 
 fastify.route({
