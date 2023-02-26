@@ -100,6 +100,46 @@ const calculateExpansionMRR = async (df) => {
 	return expansionMrrSeries
 }
 
+const calculateLogoRetentionRate = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var logoRetentionSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var retainedCustomers = 0
+		var totalCustomers = 0 
+		let currentTimeframe
+		for (let j = 0; j < df.length; j++) {
+			currentTimeframe = timeSeries[i]
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			retainedCustomers += ((currentMrr !== 0) && (previousMrr !== 0)) ? 1 : 0
+			totalCustomers += (previousMrr !== 0) ? 1 : 0
+		}
+		const logoRetentionDatapoint = {[currentTimeframe]: (retainedCustomers / totalCustomers)}
+		logoRetentionSeries.push(logoRetentionDatapoint)
+	}
+	return logoRetentionSeries
+}
+
+const calculateLogoChurnRate = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var logoChurnSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var churnedCustomers = 0
+		var totalCustomers = 0 
+		let currentTimeframe
+		for (let j = 0; j < df.length; j++) {
+			currentTimeframe = timeSeries[i]
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			churnedCustomers += ((currentMrr === 0) && (previousMrr !== 0)) ? 1 : 0
+			totalCustomers += (previousMrr !== 0) ? 1 : 0
+		}
+		const logoChurnDatapoint = {[currentTimeframe]: (churnedCustomers / totalCustomers)}
+		logoChurnSeries.push(logoChurnDatapoint)
+	}
+	return logoChurnSeries
+}
+
 const calculateCustomerLifetime = async (df) => {
 	const timeSeries = generateTimeArray(df)
 	var customerLifetimeSeries = []
@@ -245,6 +285,6 @@ const calculateGrossMrrChurnRate = async (df) => {
 	return grossMrrChurnRateSeries
 }
 
-module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue,calculateCustomers, calculateNewCustomers, calculateChurnedCustomers, calculateNetMrrChurnRate, calculateGrossMrrChurnRate }
+module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue,calculateCustomers, calculateNewCustomers, calculateChurnedCustomers, calculateNetMrrChurnRate, calculateGrossMrrChurnRate, calculateLogoRetentionRate, calculateLogoChurnRate }
 
 
