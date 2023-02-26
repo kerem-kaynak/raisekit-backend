@@ -208,6 +208,43 @@ const calculateChurnedCustomers = async (df) => {
 	}
 	return churnedCustomersSeries
 }
-module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue,calculateCustomers, calculateNewCustomers, calculateChurnedCustomers }
+
+const calculateNetMrrChurnRate = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var netMrrChurnRateSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var sum = 0
+		var previousSum = 0
+		for (let j = 0; j < df.length; j++) {
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			sum += (previousMrr !== 0) ? (previousMrr - currentMrr) : 0
+			previousSum += (previousMrr !== 0) ? previousMrr : 0
+		}
+		const netMrrChurnRateDatapoint = {[timeSeries[i]]: (previousSum !== 0) ? (sum/previousSum) : 0}
+		netMrrChurnRateSeries.push(netMrrChurnRateDatapoint)
+	}
+	return netMrrChurnRateSeries
+}
+
+const calculateGrossMrrChurnRate = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	var grossMrrChurnRateSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var sum = 0
+		var previousSum = 0
+		for (let j = 0; j < df.length; j++) {
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i-1]])
+			sum += (previousMrr !== 0 && (previousMrr > currentMrr)) ? (previousMrr - currentMrr) : 0
+			previousSum += (previousMrr !== 0) ? previousMrr : 0
+		}
+		const grossMrrChurnRateDatapoint = {[timeSeries[i]]: (previousSum !== 0) ? (sum/previousSum) : 0}
+		grossMrrChurnRateSeries.push(grossMrrChurnRateDatapoint)
+	}
+	return grossMrrChurnRateSeries
+}
+
+module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue,calculateCustomers, calculateNewCustomers, calculateChurnedCustomers, calculateNetMrrChurnRate, calculateGrossMrrChurnRate }
 
 
