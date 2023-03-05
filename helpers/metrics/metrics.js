@@ -318,6 +318,19 @@ const calculateCAC = async (df) => {
 	return cacSeries
 }
 
+const calculateRunway = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	let runwaySeries = []
+	for (let i = 0; i < timeSeries.length; i++) {
+		const currentOutflow = parseFloat(df[1][timeSeries[i]])
+		const currentInflow = parseFloat(df[0][timeSeries[i]])
+		const currentNetBurn = currentOutflow - currentInflow
+		const runwayDatapoint = { [timeSeries[i]]: (currentNetBurn >= 0) ? (df[2][timeSeries[i]] / currentNetBurn) : 0 }
+		runwaySeries.push(runwayDatapoint)
+	}
+	return runwaySeries
+}
+
 module.exports = {
 	calculateMRR, 
 	calculateARR, 
@@ -336,5 +349,6 @@ module.exports = {
 	calculateNetDollarRetention, 
 	calculateNetMrrChurnRate, 
 	calculateGrossMrrChurnRate,
-	calculateCAC
+	calculateCAC,
+	calculateRunway
 }
