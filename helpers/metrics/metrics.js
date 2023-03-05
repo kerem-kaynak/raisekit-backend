@@ -302,4 +302,39 @@ const calculateGrossMrrChurnRate = async (df) => {
 	return grossMrrChurnRateSeries
 }
 
-module.exports = { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateContractionMRR, calculateExpansionMRR, calculateCustomerLifetime, calculateARPA, calculateLifetimeValue, calculateCustomers, calculateNewCustomers, calculateChurnedCustomers, calculateLogoRetentionRate, calculateLogoChurnRate, calculateNetDollarRetention, calculateNetMrrChurnRate, calculateGrossMrrChurnRate }
+const calculateCAC = async (df) => {
+	const relevantItemsArray = df.filter(item => item.Item == 'S&M Spend' || item.Item == 'S&M Payroll')
+	const timeSeries = generateTimeArray(relevantItemsArray)
+	let cacSeries = []
+	for (let i = 0; i < timeSeries.length; i++) {
+		let sum = 0
+		for (let j = 0; j < relevantItemsArray.length; j++) {
+			const currentCAC = parseFloat(relevantItemsArray[j][timeSeries[i]])
+			sum += currentCAC
+		}
+		const CACDatapoint = { [timeSeries[i]]: sum }
+		cacSeries.push(CACDatapoint)
+	}
+	return cacSeries
+}
+
+module.exports = {
+	calculateMRR, 
+	calculateARR, 
+	calculateNewMRR, 
+	calculateChurnedMRR, 
+	calculateContractionMRR, 
+	calculateExpansionMRR, 
+	calculateCustomerLifetime, 
+	calculateARPA, 
+	calculateLifetimeValue, 
+	calculateCustomers, 
+	calculateNewCustomers, 
+	calculateChurnedCustomers, 
+	calculateLogoRetentionRate, 
+	calculateLogoChurnRate, 
+	calculateNetDollarRetention, 
+	calculateNetMrrChurnRate, 
+	calculateGrossMrrChurnRate,
+	calculateCAC
+}
