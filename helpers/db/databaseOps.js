@@ -8,6 +8,17 @@ admin.initializeApp({
 
 const db = getFirestore()
 
-const writeOrUpdateDoc = async () => {}
+const writeOrUpdateDoc = async (data) => {
+	const newEntryRef = db.collection('Test Collection').doc('Test Doc') //todo: pass collection and doc name as parameters
+	await newEntryRef.set(data)
+}
 
-const deleteDoc = async () => {}
+const deleteDoc = async () => {
+	const newEntryRef = db.collection('Test Collection').doc('Test Doc')
+	await newEntryRef.delete()
+}
+
+module.exports = {
+	writeOrUpdateDoc,
+	deleteDoc
+}

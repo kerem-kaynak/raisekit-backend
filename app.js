@@ -3,6 +3,7 @@ const fastify = require('fastify')({
 	prettyPrint: true,
 	disableRequestLogging: false
 })
+const { writeOrUpdateDoc, deleteDoc } = require('./helpers/db/databaseOps')
 const { 
 	calculateMRR, 
 	calculateARR,
@@ -250,7 +251,33 @@ fastify.route({
 	}
 })
 
+fastify.route({
+	method: 'POST',
+	url: '/dbtest',
+	handler: async function (req, res) {
+		try {
+			const result = await writeOrUpdateDoc(req.body)
+			res.status(200).send(result)
+		} catch (err) {
+			fastify.log.error(err)
+			res.send(500)
+		}
+	}
+})
 
+fastify.route({
+	method: 'POST',
+	url: '/dbtestdelete',
+	handler: async function (req, res) {
+		try {
+			const result = await deleteDoc()
+			res.status(200).send(result)
+		} catch (err) {
+			fastify.log.error(err)
+			res.send(500)
+		}
+	}
+})
 
 /**
  * Run the server!
