@@ -1,9 +1,10 @@
 var admin = require('firebase-admin')
 const { getFirestore } = require('firebase-admin/firestore')
+const { convertUploadedDataToDatabaseFormat } = require('../metrics/dataHandlers')
 require('dotenv').config()
 
 admin.initializeApp({
-	credential: admin.credential.applicationDefault()
+	credential: admin.credential.cert('./serviceAccountCreds.json')
 })
 
 const db = getFirestore()
@@ -18,7 +19,27 @@ const deleteDoc = async () => {
 	await newEntryRef.delete()
 }
 
+const writeUploadedRawDataToDatabase = async (company, body) => {
+	const fieldNames = {
+		'revenue': 'revenue_data',
+		'costs': 'costs_data',
+		'cash': 'cash_data'
+	}
+	const formattedData = await convertUploadedDataToDatabaseFormat(body.data)
+	const res = await db.collection('companies').doc(company).update({
+		[fieldNames[body.type]]: formattedData
+	})
+	return res
+}
+
+const fetchDataFromDatabase = async (company) => {
+	const fetchedData = await (await db.collection('companies').doc(company).get()).data()
+	return fetchedData
+}
+
 module.exports = {
 	writeOrUpdateDoc,
-	deleteDoc
+	deleteDoc,
+	writeUploadedRawDataToDatabase,
+	fetchDataFromDatabase
 }

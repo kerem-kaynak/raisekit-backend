@@ -1,3 +1,9 @@
+const { writeUploadedRawDataToDatabase, fetchDataFromDatabase } = require('../db/databaseOps')
+const { convertDatabaseDataToProcessingFormat } = require('./dataHandlers')
+const { getFirestore } = require('firebase-admin/firestore')
+
+const db = getFirestore()
+
 const generateTimeArray = (df) => {
 	var timeSeries = Object.keys(df[0])
 	timeSeries.shift()
@@ -331,6 +337,93 @@ const calculateRunway = async (df) => {
 	return runwaySeries
 }
 
+const calculateMetricAndWriteToDatabase = async (func, df, company) => {
+	const functionNameToMetricNameMap = {
+		'calculateMRR': 'mrr', 
+		'calculateARR': 'arr', 
+		'calculateNewMRR': 'new_mrr', 
+		'calculateChurnedMRR': 'churned_mrr', 
+		'calculateContractionMRR': 'contraction_mrr', 
+		'calculateExpansionMRR': 'expansion_mrr', 
+		'calculateCustomerLifetime': 'customer_lifetime', 
+		'calculateARPA': 'arpa', 
+		'calculateLifetimeValue': 'customer_lifetime_value', 
+		'calculateCustomers': 'customer_count', 
+		'calculateNewCustomers': 'new_customer_count', 
+		'calculateChurnedCustomers': 'churned_customer_count', 
+		'calculateLogoRetentionRate': 'logo_retention_rate', 
+		'calculateLogoChurnRate': 'logo_churn_rate', 
+		'calculateNetDollarRetention': 'net_dollar_retention', 
+		'calculateNetMrrChurnRate': 'net_mrr_churn_rate', 
+		'calculateGrossMrrChurnRate': 'gross_mrr_churn_rate',
+		'calculateCAC': 'customer_acquisition_cost',
+		'calculateRunway': 'runway'
+	}
+	const res = await func(df)
+	let finalObject = {}
+	for (let i = 0; i < res.length; i++) {
+		const currentMonth = res[i]
+		finalObject = { ...finalObject, ...currentMonth }
+	}
+	const reply = await db
+		.collection('companies')
+		.doc(company)
+		.collection('metrics')
+		.doc(functionNameToMetricNameMap[func.name])
+		.set(finalObject)
+	return reply
+}
+
+const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
+	const metricList = {
+		revenue: {
+			calculateARPA,
+			calculateARR,
+			calculateChurnedCustomers,
+			calculateChurnedMRR,
+			calculateContractionMRR,
+			calculateCustomerLifetime,
+			calculateCustomers,
+			calculateExpansionMRR,
+			calculateGrossMrrChurnRate,
+			calculateLifetimeValue,
+			calculateLogoChurnRate,
+			calculateLogoRetentionRate,
+			calculateMRR,
+			calculateNetDollarRetention,
+			calculateNetMrrChurnRate,
+			calculateNewCustomers,
+			calculateNewMRR
+		},
+		costs: {
+			calculateCAC
+		},
+		cash: {
+			calculateRunway
+		}
+	}
+	const dbWriteResponse = await writeUploadedRawDataToDatabase(company, df)
+	const dataFromDatabase = await fetchDataFromDatabase(company)
+	const revenueDataInProcessingFormat = await convertDatabaseDataToProcessingFormat(dataFromDatabase.revenue_data)
+	const costsDataInProcessingFormat = await convertDatabaseDataToProcessingFormat(dataFromDatabase.costs_data)
+	const cashDataInProcessingFormat = await convertDatabaseDataToProcessingFormat(dataFromDatabase.cash_data)
+	for (let val in metricList.revenue) {
+		if (Object.prototype.hasOwnProperty.call(metricList.revenue, val)) {
+			const res = await calculateMetricAndWriteToDatabase(metricList.revenue[val], revenueDataInProcessingFormat, company)
+		}
+	}
+	for (let val in metricList) {
+		if (Object.prototype.hasOwnProperty.call(metricList.costs, val)) {
+			const res = await calculateMetricAndWriteToDatabase(metricList.costs[val], costsDataInProcessingFormat, company)
+		}
+	}
+	for (let val in metricList) {
+		if (Object.prototype.hasOwnProperty.call(metricList.cash, val)) {
+			const res = await calculateMetricAndWriteToDatabase(metricList.cash[val], cashDataInProcessingFormat, company)
+		}
+	}
+}
+
 module.exports = {
 	calculateMRR, 
 	calculateARR, 
@@ -350,5 +443,7 @@ module.exports = {
 	calculateNetMrrChurnRate, 
 	calculateGrossMrrChurnRate,
 	calculateCAC,
-	calculateRunway
+	calculateRunway,
+	calculateMetricAndWriteToDatabase,
+	calculateAllMetricsAndWriteToDatabase
 }
