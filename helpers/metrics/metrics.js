@@ -1,8 +1,5 @@
-const { writeUploadedRawDataToDatabase, fetchDataFromDatabase } = require('../db/databaseOps')
+const { writeUploadedRawDataToDatabase, fetchDataFromDatabase, writeMetricToDatabase } = require('../db/databaseOps')
 const { convertDatabaseDataToProcessingFormat } = require('./dataHandlers')
-const { getFirestore } = require('firebase-admin/firestore')
-
-const db = getFirestore()
 
 const generateTimeArray = (df) => {
 	var timeSeries = Object.keys(df[0])
@@ -338,40 +335,9 @@ const calculateRunway = async (df) => {
 }
 
 const calculateMetricAndWriteToDatabase = async (func, df, company) => {
-	const functionNameToMetricNameMap = {
-		'calculateMRR': 'mrr', 
-		'calculateARR': 'arr', 
-		'calculateNewMRR': 'new_mrr', 
-		'calculateChurnedMRR': 'churned_mrr', 
-		'calculateContractionMRR': 'contraction_mrr', 
-		'calculateExpansionMRR': 'expansion_mrr', 
-		'calculateCustomerLifetime': 'customer_lifetime', 
-		'calculateARPA': 'arpa', 
-		'calculateLifetimeValue': 'customer_lifetime_value', 
-		'calculateCustomers': 'customer_count', 
-		'calculateNewCustomers': 'new_customer_count', 
-		'calculateChurnedCustomers': 'churned_customer_count', 
-		'calculateLogoRetentionRate': 'logo_retention_rate', 
-		'calculateLogoChurnRate': 'logo_churn_rate', 
-		'calculateNetDollarRetention': 'net_dollar_retention', 
-		'calculateNetMrrChurnRate': 'net_mrr_churn_rate', 
-		'calculateGrossMrrChurnRate': 'gross_mrr_churn_rate',
-		'calculateCAC': 'customer_acquisition_cost',
-		'calculateRunway': 'runway'
-	}
 	const res = await func(df)
-	let finalObject = {}
-	for (let i = 0; i < res.length; i++) {
-		const currentMonth = res[i]
-		finalObject = { ...finalObject, ...currentMonth }
-	}
-	const reply = await db
-		.collection('companies')
-		.doc(company)
-		.collection('metrics')
-		.doc(functionNameToMetricNameMap[func.name])
-		.set(finalObject)
-	return reply
+	const dbRes = await writeMetricToDatabase(func, company, res)
+	return dbRes
 }
 
 const calculateAllMetricsAndWriteToDatabase = async (df, company) => {

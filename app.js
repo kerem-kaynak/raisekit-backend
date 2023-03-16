@@ -20,7 +20,7 @@ fastify.route({
 			res.status(200).send(result)
 		} catch (err) {
 			fastify.log.error(err)
-			res.send(500)
+			res.status(500).send()
 		}
 	}
 })
