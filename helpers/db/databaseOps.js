@@ -4,7 +4,7 @@ const { convertUploadedDataToDatabaseFormat } = require('../metrics/dataHandlers
 require('dotenv').config()
 
 admin.initializeApp({
-	credential: admin.credential.cert('./serviceAccountCreds.json')
+	credential: admin.credential.applicationDefault()
 })
 
 const db = getFirestore()
