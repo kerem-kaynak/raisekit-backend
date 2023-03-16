@@ -1,3 +1,6 @@
+const { writeUploadedRawDataToDatabase, fetchDataFromDatabase, writeMetricToDatabase } = require('../db/databaseOps')
+const { convertDatabaseDataToProcessingFormat } = require('./dataHandlers')
+
 const generateTimeArray = (df) => {
 	var timeSeries = Object.keys(df[0])
 	timeSeries.shift()
@@ -331,6 +334,62 @@ const calculateRunway = async (df) => {
 	return runwaySeries
 }
 
+const calculateMetricAndWriteToDatabase = async (func, df, company) => {
+	const res = await func(df)
+	const dbRes = await writeMetricToDatabase(func, company, res)
+	return dbRes
+}
+
+const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
+	const metricList = {
+		revenue: {
+			calculateARPA,
+			calculateARR,
+			calculateChurnedCustomers,
+			calculateChurnedMRR,
+			calculateContractionMRR,
+			calculateCustomerLifetime,
+			calculateCustomers,
+			calculateExpansionMRR,
+			calculateGrossMrrChurnRate,
+			calculateLifetimeValue,
+			calculateLogoChurnRate,
+			calculateLogoRetentionRate,
+			calculateMRR,
+			calculateNetDollarRetention,
+			calculateNetMrrChurnRate,
+			calculateNewCustomers,
+			calculateNewMRR
+		},
+		costs: {
+			calculateCAC
+		},
+		cash: {
+			calculateRunway
+		}
+	}
+	const dbWriteResponse = await writeUploadedRawDataToDatabase(company, df)
+	const dataFromDatabase = await fetchDataFromDatabase(company)
+	const revenueDataInProcessingFormat = await convertDatabaseDataToProcessingFormat(dataFromDatabase.revenue_data)
+	const costsDataInProcessingFormat = await convertDatabaseDataToProcessingFormat(dataFromDatabase.costs_data)
+	const cashDataInProcessingFormat = await convertDatabaseDataToProcessingFormat(dataFromDatabase.cash_data)
+	for (let val in metricList.revenue) {
+		if (Object.prototype.hasOwnProperty.call(metricList.revenue, val)) {
+			const res = await calculateMetricAndWriteToDatabase(metricList.revenue[val], revenueDataInProcessingFormat, company)
+		}
+	}
+	for (let val in metricList) {
+		if (Object.prototype.hasOwnProperty.call(metricList.costs, val)) {
+			const res = await calculateMetricAndWriteToDatabase(metricList.costs[val], costsDataInProcessingFormat, company)
+		}
+	}
+	for (let val in metricList) {
+		if (Object.prototype.hasOwnProperty.call(metricList.cash, val)) {
+			const res = await calculateMetricAndWriteToDatabase(metricList.cash[val], cashDataInProcessingFormat, company)
+		}
+	}
+}
+
 module.exports = {
 	calculateMRR, 
 	calculateARR, 
@@ -350,5 +409,7 @@ module.exports = {
 	calculateNetMrrChurnRate, 
 	calculateGrossMrrChurnRate,
 	calculateCAC,
-	calculateRunway
+	calculateRunway,
+	calculateMetricAndWriteToDatabase,
+	calculateAllMetricsAndWriteToDatabase
 }
