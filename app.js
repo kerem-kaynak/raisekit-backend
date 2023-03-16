@@ -17,7 +17,7 @@ fastify.route({
 	handler: async function (req, res) {
 		try {
 			const result = await calculateAllMetricsAndWriteToDatabase(req.body, req.body.company)
-			res.status(200).send(result)
+			res.status(200).send('Data successfully updated.')
 		} catch (err) {
 			fastify.log.error(err)
 			res.status(500).send()
