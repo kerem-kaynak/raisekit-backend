@@ -492,6 +492,7 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
       calculateNetMrrChurnRate,
       calculateNewCustomers,
       calculateNewMRR,
+      calculateQuickRatio,
     },
     costs: {
       calculateCAC,
@@ -568,6 +569,8 @@ module.exports = {
   calculateGrossMrrChurnRate,
   calculateCAC,
   calculateRunway,
+  calculateQuickRatio,
   calculateMetricAndWriteToDatabase,
   calculateAllMetricsAndWriteToDatabase,
+
 };
