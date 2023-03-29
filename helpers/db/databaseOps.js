@@ -38,36 +38,37 @@ const writeUploadedRawDataToDatabase = async (company, body) => {
 }
 
 const writeMetricToDatabase = async (func, company, metricRes) => {
-	const functionNameToMetricNameMap = {
-		calculateMRR: 'mrr',
-		calculateARR: 'arr',
-		calculateNewMRR: 'new_mrr',
-		calculateChurnedMRR: 'churned_mrr',
-		calculateContractionMRR: 'contraction_mrr',
-		calculateExpansionMRR: 'expansion_mrr',
-		calculateCustomerLifetime: 'customer_lifetime',
-		calculateARPA: 'arpa',
-		calculateLifetimeValue: 'customer_lifetime_value',
-		calculateCustomers: 'customer_count',
-		calculateNewCustomers: 'new_customer_count',
-		calculateChurnedCustomers: 'churned_customer_count',
-		calculateLogoRetentionRate: 'logo_retention_rate',
-		calculateLogoChurnRate: 'logo_churn_rate',
-		calculateNetDollarRetention: 'net_dollar_retention',
-		calculateNetMrrChurnRate: 'net_mrr_churn_rate',
-		calculateGrossMrrChurnRate: 'gross_mrr_churn_rate',
-		calculateCAC: 'customer_acquisition_cost',
-		calculateRunway: 'runway',
-		calculateCACPaybackPeriod: 'cac_payback_period',
-	}
-	const reply = await db
-		.collection('companies')
-		.doc(company)
-		.collection('metrics')
-		.doc(functionNameToMetricNameMap[func.name])
-		.set({ series: metricRes })
-	return reply
-}
+  const functionNameToMetricNameMap = {
+    calculateMRR: "mrr",
+    calculateARR: "arr",
+    calculateNewMRR: "new_mrr",
+    calculateChurnedMRR: "churned_mrr",
+    calculateContractionMRR: "contraction_mrr",
+    calculateExpansionMRR: "expansion_mrr",
+    calculateCustomerLifetime: "customer_lifetime",
+    calculateARPA: "arpa",
+    calculateLifetimeValue: "customer_lifetime_value",
+    calculateCustomers: "customer_count",
+    calculateNewCustomers: "new_customer_count",
+    calculateChurnedCustomers: "churned_customer_count",
+    calculateLogoRetentionRate: "logo_retention_rate",
+    calculateLogoChurnRate: "logo_churn_rate",
+    calculateNetDollarRetention: "net_dollar_retention",
+    calculateNetMrrChurnRate: "net_mrr_churn_rate",
+    calculateGrossMrrChurnRate: "gross_mrr_churn_rate",
+    calculateCAC: "customer_acquisition_cost",
+    calculateRunway: "runway",
+    calculateCACPaybackPeriod: "cac_payback_period",
+    calculateQuickRatio: "quick_ratio"
+  };
+  const reply = await db
+    .collection("companies")
+    .doc(company)
+    .collection("metrics")
+    .doc(functionNameToMetricNameMap[func.name])
+    .set({ series: metricRes });
+  return reply;
+};
 
 const fetchDataFromDatabase = async (company) => {
 	const fetchedData = await (
