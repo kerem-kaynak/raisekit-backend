@@ -59,6 +59,7 @@ const writeMetricToDatabase = async (func, company, metricRes) => {
     calculateCAC: "customer_acquisition_cost",
     calculateRunway: "runway",
     calculateCACPaybackPeriod: "cac_payback_period",
+    calculateQuickRatio: "quick_ratio"
   };
   const reply = await db
     .collection("companies")

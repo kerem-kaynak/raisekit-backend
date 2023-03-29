@@ -438,23 +438,25 @@ const calculateMetricAndWriteToDatabase = async (func, df, company) => {
 const calculateQuickRatio = async (df) => {
   const timeSeries = generateTimeArray(df);
   var quickRatioSeries = [];
-  for (let i = 1; i < df.length; i++) {
+  for (let i = 1; i < timeSeries.length; i++) {
     var chrnedAndCtrcnMrr = 0;
     var newAndExpsnMrr = 0;
     for (let j = 0; j < df.length; j++) {
       const currentMrr = parseFloat(df[j][timeSeries[i]]);
       const previousMrr = parseFloat(df[j][timeSeries[i - 1]]);
       chrnedAndCtrcnMrr +=
-        previousMrr !== 0 && previousMrr > currentMrr
-          ? previousMrr - currentMrr
+        (previousMrr !== 0) && (previousMrr > currentMrr)
+          ? (previousMrr - currentMrr)
           : 0;
-      newAndExpsnMrr = +
+      newAndExpsnMrr +=
         previousMrr < currentMrr
-        ? currentMrr - previousMrr
-        : 0;
+          ? (currentMrr - previousMrr)
+          : 0;
     }
     const quickRatioDatapoint = {
-      [timeSeries[i]]: chrnedAndCtrcnMrr !== 0 ? newAndExpsnMrr / chrnedAndCtrcnMrr : 0
+      [timeSeries[i]]: (chrnedAndCtrcnMrr !== 0)
+        ? (newAndExpsnMrr / chrnedAndCtrcnMrr)
+        : 0
     };
     quickRatioSeries.push(quickRatioDatapoint);
   }
