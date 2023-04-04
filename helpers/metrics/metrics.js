@@ -455,6 +455,42 @@ const calculateQuickRatio = async (df) => {
   return quickRatioSeries;
 };
 
+const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
+	const timeSeries = generateTimeArray(dfRevenue)
+	const relevantItemsArray = dfCosts.filter(
+		(item) => item.Item == 'S&M Spend' || item.Item == 'S&M Payroll'
+	)
+	var lifetimeValueCACRatioSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		let CACSum = 0
+		var churnedCustomers = 0
+		var lastMonthCustomers = 0
+		var mrr = 0
+		var currentCustomers = 0
+		const currentTimeframe = timeSeries[i]
+	
+		for (let j = 0; j < dfRevenue.length; j++) {
+			const currentMrr = parseFloat(dfRevenue[j][timeSeries[i]])
+			const previousMrr = parseFloat(dfRevenue[j][timeSeries[i - 1]])
+			churnedCustomers += currentMrr === 0 && previousMrr !== 0 ? 1 : 0
+			lastMonthCustomers += previousMrr !== 0 ? 1 : 0
+			mrr += currentMrr
+			currentCustomers += currentMrr !== 0 ? 1 : 0
+		}
+		for (let j = 0; j < relevantItemsArray.length; j++) {
+			const currentCAC = parseFloat(relevantItemsArray[j][timeSeries[i]])
+			CACSum += currentCAC
+		}
+		const lifetimeValueDatapoint = (churnedCustomers !== 0 && currentCustomers !== 0) ? (lastMonthCustomers / churnedCustomers) * (mrr / currentCustomers) : 0
+		const CACDatapoint = CACSum
+		const lifetimeValueCACRatioDatapoint = {
+			[currentTimeframe]: CACDatapoint !== 0 ? lifetimeValueDatapoint / CACDatapoint : 0
+		} 
+		lifetimeValueCACRatioSeries.push(lifetimeValueCACRatioDatapoint)
+	}
+	return lifetimeValueCACRatioSeries
+} 
+
 const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 	func,
 	df1,
@@ -528,13 +564,17 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
         cashDataInProcessingFormat,
         comWithTwoInputspany
       );
-
-			costsDataInProcessingFormat, revenueDataInProcessingFormat, company
 		}
-		const res = await calculateMetricWithTwoInputsAndWriteToDatabase(
+		await calculateMetricWithTwoInputsAndWriteToDatabase(
 			calculateCACPaybackPeriod,
 			costsDataInProcessingFormat,
 			revenueDataInProcessingFormat,
+			company
+		)
+		await calculateMetricWithTwoInputsAndWriteToDatabase(
+			calculateLtvCACRatio,
+			revenueDataInProcessingFormat,
+			costsDataInProcessingFormat,
 			company
 		)
 	}
@@ -565,4 +605,5 @@ module.exports = {
   calculateQuickRatio,
   calculateMetricAndWriteToDatabase,
   calculateAllMetricsAndWriteToDatabase,
+  calculateLtvCACRatio,
 };
