@@ -60,7 +60,8 @@ const writeMetricToDatabase = async (func, company, metricRes) => {
 		calculateRunway: 'runway',
 		calculateCACPaybackPeriod: 'cac_payback_period',
 		calculateQuickRatio: 'quick_ratio',
-		calculateLtvCACRatio: 'ltv_cac_ratio'
+		calculateLtvCACRatio: 'ltv_cac_ratio',
+		calculateCohortRetention: 'cohort_retention'
 	}
 	const reply = await db
 		.collection('companies')
@@ -72,9 +73,7 @@ const writeMetricToDatabase = async (func, company, metricRes) => {
 }
 
 const fetchDataFromDatabase = async (company) => {
-	const fetchedData = await (
-		await db.collection('companies').doc(company).get()
-	).data()
+	const fetchedData =	(await db.collection('companies').doc(company).get()).data()
 	return fetchedData
 }
 

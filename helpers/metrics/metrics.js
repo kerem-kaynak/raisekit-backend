@@ -431,23 +431,19 @@ const calculateQuickRatio = async (df) => {
 	const timeSeries = generateTimeArray(df)
 	var quickRatioSeries = []
 	for (let i = 1; i < timeSeries.length; i++) {
-		var chrnedAndCtrcnMrr = 0
-		var newAndExpsnMrr = 0
+		var churnedAndContractionMrr = 0
+		var newAndExpansionMrr = 0
 		for (let j = 0; j < df.length; j++) {
 			const currentMrr = parseFloat(df[j][timeSeries[i]])
 			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
-			chrnedAndCtrcnMrr +=
-        (previousMrr !== 0) && (previousMrr > currentMrr)
-        	? (previousMrr - currentMrr)
-        	: 0
-			newAndExpsnMrr +=
-        previousMrr < currentMrr
-        	? (currentMrr - previousMrr)
-        	: 0
+			churnedAndContractionMrr +=
+        (previousMrr !== 0) && (previousMrr > currentMrr) ? (previousMrr - currentMrr) : 0
+			newAndExpansionMrr +=
+        previousMrr < currentMrr ? (currentMrr - previousMrr) : 0
 		}
 		const quickRatioDatapoint = {
-			[timeSeries[i]]: (chrnedAndCtrcnMrr !== 0)
-				? (newAndExpsnMrr / chrnedAndCtrcnMrr)
+			[timeSeries[i]]: (churnedAndContractionMrr !== 0)
+				? (newAndExpansionMrr / churnedAndContractionMrr)
 				: 0
 		}
 		quickRatioSeries.push(quickRatioDatapoint)
@@ -490,6 +486,32 @@ const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
 	}
 	return lifetimeValueCACRatioSeries
 } 
+
+const calculateCohortRetention = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	let cohortRetention = []
+	for (let i = 0; i < timeSeries.length; i++) {
+		const currentCohortMonth = timeSeries[i]
+		let currentCohortData = {
+			[currentCohortMonth]: {}
+		}
+		for (let j = i; j < (timeSeries.length); j++) {
+			const currentMonth = timeSeries[j]
+			const currentIndex = (j - i)
+			let cohortCount = 0
+			let currentMonthCount = 0
+			for (let k = 0; k < df.length; k++) {
+				const baselineMrrCurrentCustomer = parseFloat(df[k][currentCohortMonth])
+				const currentMrrCurrentCustomer = parseFloat(df[k][currentMonth])
+				cohortCount += (baselineMrrCurrentCustomer !== 0) ? 1 : 0
+				currentMonthCount += ((baselineMrrCurrentCustomer !== 0) && (currentMrrCurrentCustomer !== 0)) ? 1 : 0
+			}
+			Object.assign(currentCohortData[currentCohortMonth], {[currentIndex] : (cohortCount !== 0) ? (currentMonthCount / cohortCount) : 0})
+		}
+		cohortRetention.push(currentCohortData)
+	}
+	return cohortRetention
+}
 
 const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 	func,
@@ -600,4 +622,5 @@ module.exports = {
 	calculateMetricAndWriteToDatabase,
 	calculateAllMetricsAndWriteToDatabase,
 	calculateLtvCACRatio,
+	calculateCohortRetention
 }
