@@ -340,7 +340,7 @@ const calculateGrossMrrChurnRate = async (df) => {
 
 const calculateCAC = async (df) => {
 	const relevantItemsArray = df.filter(
-		(item) => item.Item == 'S&M Spend' || item.Item == 'S&M Payroll'
+		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
 	)
 	const timeSeries = generateTimeArray(relevantItemsArray)
 	let cacSeries = []
@@ -451,6 +451,42 @@ const calculateQuickRatio = async (df) => {
 	return quickRatioSeries
 }
 
+const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
+	const timeSeries = generateTimeArray(dfRevenue)
+	const relevantItemsArray = dfCosts.filter(
+		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
+	)
+	var lifetimeValueCACRatioSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		let CACSum = 0
+		var churnedCustomers = 0
+		var lastMonthCustomers = 0
+		var mrr = 0
+		var currentCustomers = 0
+		const currentTimeframe = timeSeries[i]
+	
+		for (let j = 0; j < dfRevenue.length; j++) {
+			const currentMrr = parseFloat(dfRevenue[j][timeSeries[i]])
+			const previousMrr = parseFloat(dfRevenue[j][timeSeries[i - 1]])
+			churnedCustomers += currentMrr === 0 && previousMrr !== 0 ? 1 : 0
+			lastMonthCustomers += previousMrr !== 0 ? 1 : 0
+			mrr += currentMrr
+			currentCustomers += currentMrr !== 0 ? 1 : 0
+		}
+		for (let k = 0; k < relevantItemsArray.length; k++) {
+			const currentCAC = parseFloat(relevantItemsArray[k][timeSeries[i]])
+			CACSum += currentCAC
+		}
+		const lifetimeValueDatapoint = (churnedCustomers !== 0 && currentCustomers !== 0) ? (lastMonthCustomers / churnedCustomers) * (mrr / currentCustomers) : 0
+		const CACDatapoint = CACSum
+		const lifetimeValueCACRatioDatapoint = {
+			[currentTimeframe]: CACDatapoint !== 0 ? lifetimeValueDatapoint / CACDatapoint : 0
+		} 
+		lifetimeValueCACRatioSeries.push(lifetimeValueCACRatioDatapoint)
+	}
+	return lifetimeValueCACRatioSeries
+} 
+
 const calculateCohortRetention = async (df) => {
 	const timeSeries = generateTimeArray(df)
 	let cohortRetention = []
@@ -490,7 +526,7 @@ const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 
 const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 	const metricList = {
-		revenue: {
+		revenue: [
 			calculateARPA,
 			calculateARR,
 			calculateChurnedCustomers,
@@ -509,14 +545,13 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 			calculateNewCustomers,
 			calculateNewMRR,
 			calculateQuickRatio,
-			calculateCohortRetention
-		},
-		costs: {
+		],
+		costs: [
 			calculateCAC,
-		},
-		cash: {
+		],
+		cash: [
 			calculateRunway,
-		},
+		],
 	}
 	const dbWriteResponse = await writeUploadedRawDataToDatabase(company, df)
 	const dataFromDatabase = await fetchDataFromDatabase(company)
@@ -527,38 +562,38 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 	const cashDataInProcessingFormat =
     await convertDatabaseDataToProcessingFormat(dataFromDatabase.cash_data)
 	for (let val in metricList.revenue) {
-		if (Object.prototype.hasOwnProperty.call(metricList.revenue, val)) {
-			const res = await calculateMetricAndWriteToDatabase(
-				metricList.revenue[val],
-				revenueDataInProcessingFormat,
-				company
-			)
-		}
-	}
-	for (let val in metricList) {
-		if (Object.prototype.hasOwnProperty.call(metricList.costs, val)) {
-			const res = await calculateMetricAndWriteToDatabase(
-				metricList.costs[val],
-				costsDataInProcessingFormat,
-				company
-			)
-		}
-	}
-	for (let val in metricList) {
-		if (Object.prototype.hasOwnProperty.call(metricList.cash, val)) {
-			const res = await calculateMetricAndWriteToDatabase(
-				metricList.cash[val],
-				cashDataInProcessingFormat,
-				company
-			)
-		}
-		const res = await calculateMetricWithTwoInputsAndWriteToDatabase(
-			calculateCACPaybackPeriod,
-			costsDataInProcessingFormat,
+		await calculateMetricAndWriteToDatabase(
+			metricList.revenue[val],
 			revenueDataInProcessingFormat,
 			company
 		)
 	}
+	for (let val in metricList.costs) {
+		await calculateMetricAndWriteToDatabase(
+			metricList.costs[val],
+			costsDataInProcessingFormat,
+			company
+		)
+	}
+	for (let val in metricList.cash) {
+		await calculateMetricAndWriteToDatabase(
+			metricList.cash[val],
+			cashDataInProcessingFormat,
+			company
+		)
+	}
+	await calculateMetricWithTwoInputsAndWriteToDatabase(
+		calculateCACPaybackPeriod,
+		costsDataInProcessingFormat,
+		revenueDataInProcessingFormat,
+		company
+	)
+	await calculateMetricWithTwoInputsAndWriteToDatabase(
+		calculateLtvCACRatio,
+		revenueDataInProcessingFormat,
+		costsDataInProcessingFormat,
+		company
+	)
 }
 
 module.exports = {
@@ -584,7 +619,8 @@ module.exports = {
 	calculateCAC,
 	calculateRunway,
 	calculateQuickRatio,
-	calculateCohortRetention,
 	calculateMetricAndWriteToDatabase,
 	calculateAllMetricsAndWriteToDatabase,
+	calculateLtvCACRatio,
+	calculateCohortRetention
 }
