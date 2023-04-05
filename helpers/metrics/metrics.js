@@ -513,6 +513,22 @@ const calculateCohortRetention = async (df) => {
 	return cohortRetention
 }
 
+const calculateBurnMultiple = async (dfRevenue, dfCash) => {
+	const timeSeries = generateTimeArray(dfRevenue)
+	const cashRelevantData = dfCash.filter(element => element.Name == 'Cash Balance')
+	let burnMultipleSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		let netArrSum = 0
+		for (let j = 0; j < dfRevenue.length; j++) {
+			netArrSum += 12 * (parseFloat(dfRevenue[j][timeSeries[i]]) - parseFloat(dfRevenue[j][timeSeries[i-1]]))
+		}
+		const netBurnSum = cashRelevantData[0][timeSeries[i]] - cashRelevantData[0][timeSeries[i - 1]]
+		const burnMultipleDatapoint = {[timeSeries[i]]: (netBurnSum !== 0) ? (netArrSum / netBurnSum) : 0}
+		burnMultipleSeries.push(burnMultipleDatapoint)
+	}
+	return burnMultipleSeries
+}
+
 const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 	func,
 	df1,
@@ -553,7 +569,7 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 			calculateRunway,
 		],
 	}
-	const dbWriteResponse = await writeUploadedRawDataToDatabase(company, df)
+	await writeUploadedRawDataToDatabase(company, df)
 	const dataFromDatabase = await fetchDataFromDatabase(company)
 	const revenueDataInProcessingFormat =
     await convertDatabaseDataToProcessingFormat(dataFromDatabase.revenue_data)
@@ -594,6 +610,12 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 		costsDataInProcessingFormat,
 		company
 	)
+	await calculateMetricWithTwoInputsAndWriteToDatabase(
+		calculateBurnMultiple,
+		revenueDataInProcessingFormat,
+		cashDataInProcessingFormat,
+		company
+	)
 }
 
 module.exports = {
@@ -622,5 +644,6 @@ module.exports = {
 	calculateMetricAndWriteToDatabase,
 	calculateAllMetricsAndWriteToDatabase,
 	calculateLtvCACRatio,
-	calculateCohortRetention
+	calculateCohortRetention,
+	calculateBurnMultiple
 }
