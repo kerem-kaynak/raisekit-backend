@@ -340,7 +340,7 @@ const calculateGrossMrrChurnRate = async (df) => {
 
 const calculateCAC = async (df) => {
 	const relevantItemsArray = df.filter(
-		(item) => item.Item == 'S&M Spend' || item.Item == 'S&M Payroll'
+		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
 	)
 	const timeSeries = generateTimeArray(relevantItemsArray)
 	let cacSeries = []
@@ -428,37 +428,37 @@ const calculateMetricAndWriteToDatabase = async (func, df, company) => {
 }
 
 const calculateQuickRatio = async (df) => {
-  const timeSeries = generateTimeArray(df);
-  var quickRatioSeries = [];
-  for (let i = 1; i < timeSeries.length; i++) {
-    var chrnedAndCtrcnMrr = 0;
-    var newAndExpsnMrr = 0;
-    for (let j = 0; j < df.length; j++) {
-      const currentMrr = parseFloat(df[j][timeSeries[i]]);
-      const previousMrr = parseFloat(df[j][timeSeries[i - 1]]);
-      chrnedAndCtrcnMrr +=
+	const timeSeries = generateTimeArray(df)
+	var quickRatioSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		var chrnedAndCtrcnMrr = 0
+		var newAndExpsnMrr = 0
+		for (let j = 0; j < df.length; j++) {
+			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			chrnedAndCtrcnMrr +=
         (previousMrr !== 0) && (previousMrr > currentMrr)
-          ? (previousMrr - currentMrr)
-          : 0;
-      newAndExpsnMrr +=
+        	? (previousMrr - currentMrr)
+        	: 0
+			newAndExpsnMrr +=
         previousMrr < currentMrr
-          ? (currentMrr - previousMrr)
-          : 0;
-    }
-    const quickRatioDatapoint = {
-      [timeSeries[i]]: (chrnedAndCtrcnMrr !== 0)
-        ? (newAndExpsnMrr / chrnedAndCtrcnMrr)
-        : 0
-    };
-    quickRatioSeries.push(quickRatioDatapoint);
-  }
-  return quickRatioSeries;
-};
+        	? (currentMrr - previousMrr)
+        	: 0
+		}
+		const quickRatioDatapoint = {
+			[timeSeries[i]]: (chrnedAndCtrcnMrr !== 0)
+				? (newAndExpsnMrr / chrnedAndCtrcnMrr)
+				: 0
+		}
+		quickRatioSeries.push(quickRatioDatapoint)
+	}
+	return quickRatioSeries
+}
 
 const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
 	const timeSeries = generateTimeArray(dfRevenue)
 	const relevantItemsArray = dfCosts.filter(
-		(item) => item.Item == 'S&M Spend' || item.Item == 'S&M Payroll'
+		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
 	)
 	var lifetimeValueCACRatioSeries = []
 	for (let i = 1; i < timeSeries.length; i++) {
@@ -477,8 +477,8 @@ const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
 			mrr += currentMrr
 			currentCustomers += currentMrr !== 0 ? 1 : 0
 		}
-		for (let j = 0; j < relevantItemsArray.length; j++) {
-			const currentCAC = parseFloat(relevantItemsArray[j][timeSeries[i]])
+		for (let k = 0; k < relevantItemsArray.length; k++) {
+			const currentCAC = parseFloat(relevantItemsArray[k][timeSeries[i]])
 			CACSum += currentCAC
 		}
 		const lifetimeValueDatapoint = (churnedCustomers !== 0 && currentCustomers !== 0) ? (lastMonthCustomers / churnedCustomers) * (mrr / currentCustomers) : 0
@@ -503,107 +503,101 @@ const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 }
 
 const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
-  const metricList = {
-    revenue: {
-      calculateARPA,
-      calculateARR,
-      calculateChurnedCustomers,
-      calculateChurnedMRR,
-      calculateContractionMRR,
-      calculateCustomerLifetime,
-      calculateCustomers,
-      calculateExpansionMRR,
-      calculateGrossMrrChurnRate,
-      calculateLifetimeValue,
-      calculateLogoChurnRate,
-      calculateLogoRetentionRate,
-      calculateMRR,
-      calculateNetDollarRetention,
-      calculateNetMrrChurnRate,
-      calculateNewCustomers,
-      calculateNewMRR,
-      calculateQuickRatio,
-    },
-    costs: {
-      calculateCAC,
-    },
-    cash: {
-      calculateRunway,
-    },
-  };
-  const dbWriteResponse = await writeUploadedRawDataToDatabase(company, df);
-  const dataFromDatabase = await fetchDataFromDatabase(company);
-  const revenueDataInProcessingFormat =
-    await convertDatabaseDataToProcessingFormat(dataFromDatabase.revenue_data);
-  const costsDataInProcessingFormat =
-    await convertDatabaseDataToProcessingFormat(dataFromDatabase.costs_data);
-  const cashDataInProcessingFormat =
-    await convertDatabaseDataToProcessingFormat(dataFromDatabase.cash_data);
-  for (let val in metricList.revenue) {
-    if (Object.prototype.hasOwnProperty.call(metricList.revenue, val)) {
-      const res = await calculateMetricAndWriteToDatabase(
-        metricList.revenue[val],
-        revenueDataInProcessingFormat,
-        company
-      );
-    }
-  }
-  for (let val in metricList) {
-    if (Object.prototype.hasOwnProperty.call(metricList.costs, val)) {
-      const res = await calculateMetricAndWriteToDatabase(
-        metricList.costs[val],
-        costsDataInProcessingFormat,
-        company
-      );
-    }
-  }
-  for (let val in metricList) {
-    if (Object.prototype.hasOwnProperty.call(metricList.cash, val)) {
-      const res = await calculateMetricAndWriteToDatabase(
-        metricList.cash[val],
-        cashDataInProcessingFormat,
-        comWithTwoInputspany
-      );
-		}
-		await calculateMetricWithTwoInputsAndWriteToDatabase(
-			calculateCACPaybackPeriod,
-			costsDataInProcessingFormat,
+	const metricList = {
+		revenue: [
+			calculateARPA,
+			calculateARR,
+			calculateChurnedCustomers,
+			calculateChurnedMRR,
+			calculateContractionMRR,
+			calculateCustomerLifetime,
+			calculateCustomers,
+			calculateExpansionMRR,
+			calculateGrossMrrChurnRate,
+			calculateLifetimeValue,
+			calculateLogoChurnRate,
+			calculateLogoRetentionRate,
+			calculateMRR,
+			calculateNetDollarRetention,
+			calculateNetMrrChurnRate,
+			calculateNewCustomers,
+			calculateNewMRR,
+			calculateQuickRatio,
+		],
+		costs: [
+			calculateCAC,
+		],
+		cash: [
+			calculateRunway,
+		],
+	}
+	const dbWriteResponse = await writeUploadedRawDataToDatabase(company, df)
+	const dataFromDatabase = await fetchDataFromDatabase(company)
+	const revenueDataInProcessingFormat =
+    await convertDatabaseDataToProcessingFormat(dataFromDatabase.revenue_data)
+	const costsDataInProcessingFormat =
+    await convertDatabaseDataToProcessingFormat(dataFromDatabase.costs_data)
+	const cashDataInProcessingFormat =
+    await convertDatabaseDataToProcessingFormat(dataFromDatabase.cash_data)
+	for (let val in metricList.revenue) {
+		await calculateMetricAndWriteToDatabase(
+			metricList.revenue[val],
 			revenueDataInProcessingFormat,
 			company
 		)
-		await calculateMetricWithTwoInputsAndWriteToDatabase(
-			calculateLtvCACRatio,
-			revenueDataInProcessingFormat,
+	}
+	for (let val in metricList.costs) {
+		await calculateMetricAndWriteToDatabase(
+			metricList.costs[val],
 			costsDataInProcessingFormat,
 			company
 		)
 	}
+	for (let val in metricList.cash) {
+		await calculateMetricAndWriteToDatabase(
+			metricList.cash[val],
+			cashDataInProcessingFormat,
+			company
+		)
+	}
+	await calculateMetricWithTwoInputsAndWriteToDatabase(
+		calculateCACPaybackPeriod,
+		costsDataInProcessingFormat,
+		revenueDataInProcessingFormat,
+		company
+	)
+	await calculateMetricWithTwoInputsAndWriteToDatabase(
+		calculateLtvCACRatio,
+		revenueDataInProcessingFormat,
+		costsDataInProcessingFormat,
+		company
+	)
 }
 
 module.exports = {
-  calculateMRR,
-  calculateARR,
-  calculateNewMRR,
-  calculateChurnedMRR,
-  calculateContractionMRR,
-  calculateExpansionMRR,
-  calculateCustomerLifetime,
-  calculateARPA,
-  calculateLifetimeValue,
-  calculateCustomers,
-  calculateNewCustomers,
-  calculateChurnedCustomers,
-  calculateLogoRetentionRate,
-  calculateLogoChurnRate,
-  calculateNetDollarRetention,
-  calculateCACPaybackPeriod,
-  calculateNetMrrChurnRate,
-  calculateMetricWithTwoInputsAndWriteToDatabase,
-  calculateGrossMrrChurnRate,
-  calculateCAC,
-  calculateRunway,
-  calculateQuickRatio,
-  calculateMetricAndWriteToDatabase,
-  calculateAllMetricsAndWriteToDatabase,
-  calculateLtvCACRatio,
-};
+	calculateMRR,
+	calculateARR,
+	calculateNewMRR,
+	calculateChurnedMRR,
+	calculateContractionMRR,
+	calculateExpansionMRR,
+	calculateCustomerLifetime,
+	calculateARPA,
+	calculateLifetimeValue,
+	calculateCustomers,
+	calculateNewCustomers,
+	calculateChurnedCustomers,
+	calculateLogoRetentionRate,
+	calculateLogoChurnRate,
+	calculateNetDollarRetention,
+	calculateCACPaybackPeriod,
+	calculateNetMrrChurnRate,
+	calculateMetricWithTwoInputsAndWriteToDatabase,
+	calculateGrossMrrChurnRate,
+	calculateCAC,
+	calculateRunway,
+	calculateQuickRatio,
+	calculateMetricAndWriteToDatabase,
+	calculateAllMetricsAndWriteToDatabase,
+	calculateLtvCACRatio,
+}
