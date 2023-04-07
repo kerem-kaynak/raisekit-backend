@@ -542,6 +542,25 @@ const calculateNetBurn = async (df) => {
 	return netBurnSeries
 }
 
+const calculateMagicNumber = async (dfRevenue, dfCosts) => {
+	const timeSeries = generateTimeArray(dfRevenue)
+	const costRelevantData = dfCosts.filter((item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll')
+	let magicNumberSeries = []
+	for (let i = 1; i < timeSeries.length; i++) {
+		let netNewArrSum = 0
+		let cacSum = 0
+		for (let j = 0; j < dfRevenue.length; j++) {
+			netNewArrSum += 12 * (parseFloat(dfRevenue[j][timeSeries[i]]) - parseFloat(dfRevenue[j][timeSeries[i-1]]))
+		}
+		for (let k = 0; k < costRelevantData.length; k++) {
+			cacSum += costRelevantData[k][timeSeries[i]]
+		}
+		const magicNumberDatapoint = {[timeSeries[i]]: (cacSum !== 0) ? (netNewArrSum / cacSum) : 0}
+		magicNumberSeries.push(magicNumberDatapoint)
+	}
+	return magicNumberSeries
+}
+
 const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 	func,
 	df1,
@@ -630,6 +649,12 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 		cashDataInProcessingFormat,
 		company
 	)
+	await calculateMetricWithTwoInputsAndWriteToDatabase(
+		calculateMagicNumber,
+		revenueDataInProcessingFormat,
+		costsDataInProcessingFormat,
+		company
+	)
 }
 
 module.exports = {
@@ -660,5 +685,6 @@ module.exports = {
 	calculateLtvCACRatio,
 	calculateCohortRetention,
 	calculateBurnMultiple,
-	calculateNetBurn
+	calculateNetBurn,
+	calculateMagicNumber
 }
