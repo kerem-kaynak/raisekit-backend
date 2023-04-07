@@ -529,6 +529,19 @@ const calculateBurnMultiple = async (dfRevenue, dfCash) => {
 	return burnMultipleSeries
 }
 
+const calculateNetBurn = async (df) => {
+	const timeSeries = generateTimeArray(df)
+	const inflowData = df.filter(element => element.Name == 'Cash Inflow excluding Financing')
+	const outflowData = df.filter(element => element.Name == 'Cash Outflow')
+	let netBurnSeries = []
+	for (let i = 0; i < timeSeries.length; i++) {
+		const netBurnSum = inflowData[0][timeSeries[i]] - outflowData[0][timeSeries[i]]
+		const netBurnDatapoint = {[timeSeries[i]]: netBurnSum}
+		netBurnSeries.push(netBurnDatapoint)
+	}
+	return netBurnSeries
+}
+
 const calculateMetricWithTwoInputsAndWriteToDatabase = async (
 	func,
 	df1,
@@ -567,6 +580,7 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 		],
 		cash: [
 			calculateRunway,
+			calculateNetBurn,
 		],
 	}
 	await writeUploadedRawDataToDatabase(company, df)
@@ -645,5 +659,6 @@ module.exports = {
 	calculateAllMetricsAndWriteToDatabase,
 	calculateLtvCACRatio,
 	calculateCohortRetention,
-	calculateBurnMultiple
+	calculateBurnMultiple,
+	calculateNetBurn
 }

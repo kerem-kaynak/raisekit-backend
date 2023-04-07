@@ -62,7 +62,8 @@ const writeMetricToDatabase = async (func, company, metricRes) => {
 		calculateQuickRatio: 'quick_ratio',
 		calculateLtvCACRatio: 'ltv_cac_ratio',
 		calculateCohortRetention: 'cohort_retention',
-		calculateBurnMultiple: 'burn_multiple'
+		calculateBurnMultiple: 'burn_multiple',
+		calculateNetBurn: 'net_burn'
 	}
 	const reply = await db
 		.collection('companies')
