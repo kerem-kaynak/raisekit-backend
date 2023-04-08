@@ -1,8 +1,18 @@
+const cors = require('@fastify/cors')
+
 const fastify = require('fastify')({
 	logger: true,
 	prettyPrint: true,
 	disableRequestLogging: false
 })
+
+const registerCors = async () => {await fastify.register(cors, { 
+	origin: true,
+	methods: ['GET']
+})}
+
+registerCors()
+
 const {
 	calculateAllMetricsAndWriteToDatabase
 } = require('./helpers/metrics/metrics')
