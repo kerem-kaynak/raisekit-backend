@@ -686,5 +686,6 @@ module.exports = {
 	calculateCohortRetention,
 	calculateBurnMultiple,
 	calculateNetBurn,
-	calculateMagicNumber
+	calculateMagicNumber,
+	generateTimeArray
 }
