@@ -1,4 +1,4 @@
-const { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateExpansionMRR, calculateContractionMRR, calculateCAC } = require('../helpers/metrics/metrics')
+const { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateExpansionMRR, calculateContractionMRR, calculateCAC, calculateRunway, calculateNetBurn } = require('../helpers/metrics/metrics')
 
 const revenueData = [
 	{
@@ -51,6 +51,19 @@ const cashData = [
 	}
 ]
 
+const cashNetBurnData = [
+	{
+		'Name': 'Cash Inflow excluding Financing',
+		'Jan22': '500',
+		'Feb22': '700'
+	},
+	{
+		'Name': 'Cash Outflow',
+		'Jan22': '600',
+		'Feb22': '800',
+	}
+]
+
 const expectedValues = {
 	mrr: [
 		{ 'Jan22': 60 },
@@ -85,6 +98,10 @@ const expectedValues = {
 	runway: [
 		{ 'Jan22': 20 },
 		{ 'Feb22': 19 }
+	],
+	net_burn: [
+		{ 'Jan22': -100 },
+		{ 'Feb22': -100 }
 	]
 }
 
@@ -117,5 +134,9 @@ test('Given the data, calculates CAC and compares with expected value', async ()
 })
 
 test('Given the data, calculates Runway and compares with expected value', async () => {
-	expect(await calculateCAC(cashData)).toEqual(expectedValues.runway)
+	expect(await calculateRunway(cashData)).toEqual(expectedValues.runway)
+})
+
+test('Given the data, calculates Net Burn and compares with expected value', async () => {
+	expect(await calculateNetBurn(cashNetBurnData)).toEqual(expectedValues.net_burn)
 })
