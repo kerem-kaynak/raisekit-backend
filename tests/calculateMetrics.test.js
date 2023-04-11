@@ -33,6 +33,24 @@ const costsData = [
 	}
 ]
 
+const cashData = [
+	{
+		'Name': 'Cash Inflow',
+		'Jan22': '100',
+		'Feb22': '150'
+	},
+	{
+		'Name': 'Cash Outflow',
+		'Jan22': '50',
+		'Feb22': '75',
+	},
+	{
+		'Name': 'Cash Balance',
+		'Jan22': '1000',
+		'Feb22': '950',
+	}
+]
+
 const expectedValues = {
 	mrr: [
 		{ 'Jan22': 60 },
@@ -63,6 +81,10 @@ const expectedValues = {
 	cac: [
 		{ 'Jan22': 150 },
 		{ 'Feb22': 225 }
+	],
+	runway: [
+		{ 'Jan22': 20 },
+		{ 'Feb22': 19 }
 	]
 }
 
@@ -92,4 +114,8 @@ test('Given the data, calculates Contraction MRR and compares with expected valu
 
 test('Given the data, calculates CAC and compares with expected value', async () => {
 	expect(await calculateCAC(costsData)).toEqual(expectedValues.cac)
+})
+
+test('Given the data, calculates Runway and compares with expected value', async () => {
+	expect(await calculateCAC(cashData)).toEqual(expectedValues.runway)
 })
