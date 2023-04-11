@@ -36,18 +36,18 @@ const costsData = [
 const cashData = [
 	{
 		'Name': 'Cash Inflow',
-		'Jan22': '100',
-		'Feb22': '150'
+		'Jan22': '800',
+		'Feb22': '900'
 	},
 	{
 		'Name': 'Cash Outflow',
-		'Jan22': '50',
-		'Feb22': '75',
+		'Jan22': '1000',
+		'Feb22': '750',
 	},
 	{
-		'Name': 'Cash Balance',
-		'Jan22': '1000',
-		'Feb22': '950',
+		'Name': 'Balance',
+		'Jan22': '100000',
+		'Feb22': '120000',
 	}
 ]
 
@@ -96,8 +96,8 @@ const expectedValues = {
 		{ 'Feb22': 225 }
 	],
 	runway: [
-		{ 'Jan22': 20 },
-		{ 'Feb22': 19 }
+		{ 'Jan22': 500 },
+		{ 'Feb22': 0 }
 	],
 	net_burn: [
 		{ 'Jan22': -100 },
