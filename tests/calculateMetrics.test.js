@@ -1,4 +1,4 @@
-const { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateExpansionMRR, calculateContractionMRR } = require('../helpers/metrics/metrics')
+const { calculateMRR, calculateARR, calculateNewMRR, calculateChurnedMRR, calculateExpansionMRR, calculateContractionMRR, calculateCAC, calculateRunway, calculateNetBurn } = require('../helpers/metrics/metrics')
 
 const revenueData = [
 	{
@@ -12,6 +12,55 @@ const revenueData = [
 		'Jan22': '20',
 		'Feb22': '80',
 		'Mar22': '120'
+	}
+]
+
+const costsData = [
+	{
+		'Name': 'S&M Spend',
+		'Jan22': '100',
+		'Feb22': '150'
+	},
+	{
+		'Name': 'S&M Payroll',
+		'Jan22': '50',
+		'Feb22': '75',
+	},
+	{
+		'Name': 'Other Payroll',
+		'Jan22': '200',
+		'Feb22': '250',
+	}
+]
+
+const cashData = [
+	{
+		'Name': 'Cash Inflow',
+		'Jan22': '800',
+		'Feb22': '900'
+	},
+	{
+		'Name': 'Cash Outflow',
+		'Jan22': '1000',
+		'Feb22': '750',
+	},
+	{
+		'Name': 'Balance',
+		'Jan22': '100000',
+		'Feb22': '120000',
+	}
+]
+
+const cashNetBurnData = [
+	{
+		'Name': 'Cash Inflow excluding Financing',
+		'Jan22': '500',
+		'Feb22': '700'
+	},
+	{
+		'Name': 'Cash Outflow',
+		'Jan22': '600',
+		'Feb22': '800',
 	}
 ]
 
@@ -41,6 +90,18 @@ const expectedValues = {
 	contraction_mrr: [
 		{ 'Feb22': 0 },
 		{ 'Mar22': 0 }
+	],
+	cac: [
+		{ 'Jan22': 150 },
+		{ 'Feb22': 225 }
+	],
+	runway: [
+		{ 'Jan22': 500 },
+		{ 'Feb22': 0 }
+	],
+	net_burn: [
+		{ 'Jan22': -100 },
+		{ 'Feb22': -100 }
 	]
 }
 
@@ -66,4 +127,16 @@ test('Given the data, calculates Expansion MRR and compares with expected value'
 
 test('Given the data, calculates Contraction MRR and compares with expected value', async () => {
 	expect(await calculateContractionMRR(revenueData)).toEqual(expectedValues.contraction_mrr)
+})
+
+test('Given the data, calculates CAC and compares with expected value', async () => {
+	expect(await calculateCAC(costsData)).toEqual(expectedValues.cac)
+})
+
+test('Given the data, calculates Runway and compares with expected value', async () => {
+	expect(await calculateRunway(cashData)).toEqual(expectedValues.runway)
+})
+
+test('Given the data, calculates Net Burn and compares with expected value', async () => {
+	expect(await calculateNetBurn(cashNetBurnData)).toEqual(expectedValues.net_burn)
 })

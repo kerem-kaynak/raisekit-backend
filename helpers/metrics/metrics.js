@@ -688,7 +688,7 @@ module.exports = {
 	calculateBurnMultiple,
 	calculateNetBurn,
 	calculateMagicNumber,
-	generateTimeArray,
 	writeMetricToDatabase,
-	writeUploadedRawDataToDatabase
+	writeUploadedRawDataToDatabase,
+	generateTimeArray
 }
