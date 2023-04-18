@@ -593,6 +593,7 @@ const calculateAllMetricsAndWriteToDatabase = async (df, company) => {
 			calculateNewCustomers,
 			calculateNewMRR,
 			calculateQuickRatio,
+			calculateCohortRetention
 		],
 		costs: [
 			calculateCAC,
@@ -686,5 +687,8 @@ module.exports = {
 	calculateCohortRetention,
 	calculateBurnMultiple,
 	calculateNetBurn,
-	calculateMagicNumber
+	calculateMagicNumber,
+	generateTimeArray,
+	writeMetricToDatabase,
+	writeUploadedRawDataToDatabase
 }
