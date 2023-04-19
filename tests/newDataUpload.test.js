@@ -107,15 +107,11 @@ jest.mock('../helpers/db/databaseOps', () => ({
 	})
 }))
 
-test('Test mock', async () => {
+test('Given new upload data is received, calculates all metrics and writes them to the database', async () => {
 	await metrics.calculateAllMetricsAndWriteToDatabase('raisekit', mockUploadData)
-	let result = true
+	expect(mockCalculations.length).toEqual(mockMetrics.length)
 	for(let i = 0; i < mockMetrics.length; i ++) {
 		const res = mockCalculations.filter(element => Object.keys(element)[0] == Object.keys(mockMetrics[i])[0])
-		if(JSON.stringify(mockMetrics[i]) != JSON.stringify(res[0])) {
-			result = false
-		}
+		expect(mockMetrics[i]).toEqual(res[0])
 	}
-	if(mockCalculations.length != mockMetrics.length) { result = false }
-	expect(result).toEqual(true)
 })
