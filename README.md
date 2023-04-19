@@ -7,6 +7,10 @@
 Link to frontend repo: 	[Raisekit frontend](https://github.com/Raisekit/raisekit-frontend)
 ...
 
+
+## Raisekit Security
+
+
 ## Threat Modeling 🛡️
 ### External Dependencies
 | ID | Description | 
