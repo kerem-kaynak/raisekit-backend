@@ -57,3 +57,13 @@ Link to frontend repo: 	[Raisekit frontend](https://github.com/Raisekit/raisekit
 
 ### Data Flow Diagram
 ![dfd](./Threat_model_DFD.png)
+
+
+### Cyber Security Implemented Measures
+- HTML sanitization in user input login fields. Prevent XSS attacks using [DOMPurify](https://www.npmjs.com/package/dompurify) library.
+- Encode user input with [he](https://www.npmjs.com/package/he) library.
+- Sanitization with [xss] (https://www.npmjs.com/package/xss) library. Another sanitizer for potentially untrusted HTML.
+
+
+
+### Next steps
