@@ -80,10 +80,22 @@ const fetchDataFromDatabase = async (company) => {
 	return fetchedData
 }
 
+const fetchMetricsFromDatabase = async (company) => {
+	const fetchedMetrics = (await db.collection('companies').doc(company).collection('metrics').get())
+	let res = fetchedMetrics.docs.map(doc => {
+		return {
+			name: doc.id,
+			data: doc.data()
+		}
+	})
+	return res
+}
+
 module.exports = {
 	writeOrUpdateDoc,
 	deleteDoc,
 	writeUploadedRawDataToDatabase,
 	writeMetricToDatabase,
 	fetchDataFromDatabase,
+	fetchMetricsFromDatabase
 }

@@ -16,6 +16,8 @@ registerCors()
 const {
 	calculateAllMetricsAndWriteToDatabase
 } = require('./helpers/metrics/metrics')
+const { fetchMetricsFromDatabase } = require('./helpers/db/databaseOps')
+const { checkIfAuthenticated } = require('./helpers/auth/auth')
 
 fastify.get('/', async (req, res) => {
 	res.status(200).send({ hello: 'test2!', req: req.body })
@@ -24,10 +26,26 @@ fastify.get('/', async (req, res) => {
 fastify.route({
 	method: 'POST',
 	url: '/api/v0/upload_new_data',
+	preHandler: checkIfAuthenticated,
 	handler: async function (req, res) {
 		try {
 			const result = await calculateAllMetricsAndWriteToDatabase(req.body, req.body.company)
 			res.status(200).send('Data successfully updated.')
+		} catch (err) {
+			fastify.log.error(err)
+			res.status(500).send()
+		}
+	}
+})
+
+fastify.route({
+	method: 'GET',
+	url: '/get_metrics',
+	preHandler: checkIfAuthenticated,
+	handler: async function (req, res) {
+		try {
+			const result = await fetchMetricsFromDatabase(req.query.company)
+			res.status(200).send(result)
 		} catch (err) {
 			fastify.log.error(err)
 			res.status(500).send()
