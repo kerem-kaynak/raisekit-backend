@@ -2,6 +2,7 @@ var admin = require('firebase-admin')
 const { getFirestore } = require('firebase-admin/firestore')
 const {
 	convertUploadedDataToDatabaseFormat,
+	sanitizeData
 } = require('../metrics/dataHandlers')
 require('dotenv').config()
 
@@ -27,7 +28,8 @@ const writeUploadedRawDataToDatabase = async (company, body) => {
 		costs: 'costs_data',
 		cash: 'cash_data',
 	}
-	const formattedData = await convertUploadedDataToDatabaseFormat(body.data)
+	const sanitizedData = await sanitizeData(body.data)
+	const formattedData = await convertUploadedDataToDatabaseFormat(sanitizedData)
 	const res = await db
 		.collection('companies')
 		.doc(company)
@@ -76,7 +78,7 @@ const writeMetricToDatabase = async (func, company, metricRes) => {
 }
 
 const fetchDataFromDatabase = async (company) => {
-	const fetchedData =	(await db.collection('companies').doc(company).get()).data()
+	const fetchedData = (await db.collection('companies').doc(company).get()).data()
 	return fetchedData
 }
 

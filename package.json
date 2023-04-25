@@ -16,7 +16,8 @@
     "@fastify/cors": "^8.2.1",
     "dotenv": "^16.0.3",
     "fastify": "^4.13.0",
-    "firebase-admin": "^11.5.0"
+    "firebase-admin": "^11.5.0",
+    "validator": "^13.9.0"
   },
   "devDependencies": {
     "eslint": "^8.34.0",
