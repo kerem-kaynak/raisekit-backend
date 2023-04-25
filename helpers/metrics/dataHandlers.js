@@ -27,11 +27,10 @@ const convertDatabaseDataToProcessingFormat = async (df) => {
 		const mergedData = { ...rowName, ...finalRowData }
 		dataInProcessingFormat.push(mergedData)
 	}
-	return result
+	return dataInProcessingFormat
 }
 
 const sanitizeData = async (df) => {
-	console.log("before sanitization: ", df)
 	const sanitizedData = []
 
 	for (const row of df) {
@@ -42,7 +41,6 @@ const sanitizeData = async (df) => {
 		}
 		sanitizedData.push(sanitizedRow)
 	}
-	console.log("sanitized: ", sanitizedData)
 	return sanitizedData
 }
 
