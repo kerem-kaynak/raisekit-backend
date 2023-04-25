@@ -12,14 +12,14 @@ const generateTimeArray = (df) => {
 }
 
 const calculateMRR = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var mrrSeries = []
-	timeSeries.forEach((element) => {
-		var sum = 0
+	monthsSeries.forEach((month) => {
+		var mrrSumForCurrentMonth = 0
 		for (let i = 0; i < df.length; i++) {
-			sum += parseFloat(df[i][element])
+			mrrSumForCurrentMonth += parseFloat(df[i][month])
 		}
-		const result = { [element]: sum }
+		const result = { [month]: mrrSumForCurrentMonth }
 		mrrSeries.push(result)
 	})
 	return mrrSeries
@@ -28,9 +28,9 @@ const calculateMRR = async (df) => {
 const calculateARR = async (df) => {
 	const mrrSeries = await calculateMRR(df)
 	var arrSeries = []
-	mrrSeries.forEach((element) => {
+	mrrSeries.forEach((month) => {
 		const arrDataPoint = {
-			[Object.keys(element)[0]]: 12 * Object.values(element)[0],
+			[Object.keys(month)[0]]: 12 * Object.values(month)[0],
 		}
 		arrSeries.push(arrDataPoint)
 	})
@@ -38,72 +38,72 @@ const calculateARR = async (df) => {
 }
 
 const calculateNewMRR = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var newMrrSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
-		var sum = 0
-		let currentTimeframe
+	for (let i = 1; i < monthsSeries.length; i++) {
+		var newMrrSum = 0
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
-			sum +=
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
+			newMrrSum +=
         previousMrr === 0 && currentMrr !== 0 ? currentMrr - previousMrr : 0
 		}
-		const newMrrDatapoint = { [currentTimeframe]: sum }
+		const newMrrDatapoint = { [currentMonth]: newMrrSum }
 		newMrrSeries.push(newMrrDatapoint)
 	}
 	return newMrrSeries
 }
 
 const calculateChurnedMRR = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var churnedMrrSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
-		var sum = 0
-		let currentTimeframe
+	for (let i = 1; i < monthsSeries.length; i++) {
+		var churnedMrrSum = 0
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
-			sum +=
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
+			churnedMrrSum +=
         previousMrr !== 0 && currentMrr === 0 ? currentMrr - previousMrr : 0
 		}
-		const churnedMrrDatapoint = { [currentTimeframe]: sum }
+		const churnedMrrDatapoint = { [currentMonth]: churnedMrrSum }
 		churnedMrrSeries.push(churnedMrrDatapoint)
 	}
 	return churnedMrrSeries
 }
 
 const calculateContractionMRR = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var contractionMrrSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
-		var sum = 0
-		let currentTimeframe
+	for (let i = 1; i < monthsSeries.length; i++) {
+		var contractionMrrSum = 0
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
-			sum +=
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
+			contractionMrrSum +=
         previousMrr > currentMrr && currentMrr !== 0 ? currentMrr - previousMrr : 0
 		}
-		const contractionMrrDatapoint = { [currentTimeframe]: sum }
+		const contractionMrrDatapoint = { [currentMonth]: contractionMrrSum }
 		contractionMrrSeries.push(contractionMrrDatapoint)
 	}
 	return contractionMrrSeries
 }
 
 const calculateExpansionMRR = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var expansionMrrSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var sum = 0
 		let currentTimeframe
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			currentTimeframe = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			sum +=
         previousMrr < currentMrr && previousMrr !== 0 ? currentMrr - previousMrr : 0
 		}
@@ -114,21 +114,21 @@ const calculateExpansionMRR = async (df) => {
 }
 
 const calculateLogoRetentionRate = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var logoRetentionSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var retainedCustomers = 0
 		var totalCustomers = 0
-		let currentTimeframe
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			retainedCustomers += currentMrr !== 0 && previousMrr !== 0 ? 1 : 0
 			totalCustomers += previousMrr !== 0 ? 1 : 0
 		}
 		const logoRetentionDatapoint = {
-			[currentTimeframe]:
+			[currentMonth]:
         totalCustomers !== 0 ? retainedCustomers / totalCustomers : 0,
 		}
 		logoRetentionSeries.push(logoRetentionDatapoint)
@@ -137,21 +137,21 @@ const calculateLogoRetentionRate = async (df) => {
 }
 
 const calculateLogoChurnRate = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var logoChurnSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var churnedCustomers = 0
 		var totalCustomers = 0
-		let currentTimeframe
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			churnedCustomers += currentMrr === 0 && previousMrr !== 0 ? 1 : 0
 			totalCustomers += previousMrr !== 0 ? 1 : 0
 		}
 		const logoChurnDatapoint = {
-			[currentTimeframe]:
+			[currentMonth]:
         totalCustomers !== 0 ? churnedCustomers / totalCustomers : 0,
 		}
 		logoChurnSeries.push(logoChurnDatapoint)
@@ -160,21 +160,21 @@ const calculateLogoChurnRate = async (df) => {
 }
 
 const calculateCustomerLifetime = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var customerLifetimeSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var churnedCustomers = 0
 		var totalCustomers = 0
-		let currentTimeframe
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			churnedCustomers += currentMrr === 0 && previousMrr !== 0 ? 1 : 0
 			totalCustomers += previousMrr !== 0 ? 1 : 0
 		}
 		const customerLifetimeDatapoint = {
-			[currentTimeframe]:
+			[currentMonth]:
         churnedCustomers !== 0 ? totalCustomers / churnedCustomers : 0,
 		}
 		customerLifetimeSeries.push(customerLifetimeDatapoint)
@@ -183,18 +183,18 @@ const calculateCustomerLifetime = async (df) => {
 }
 
 const calculateARPA = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var arpaSeries = []
-	for (let i = 0; i < timeSeries.length; i++) {
+	for (let i = 0; i < monthsSeries.length; i++) {
 		var mrr = 0
 		var customers = 0
 		for (let j = 0; j < df.length; j++) {
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
 			mrr += currentMrr
 			customers += currentMrr !== 0 ? 1 : 0
 		}
 		const arpaDatapoint = {
-			[timeSeries[i]]: customers !== 0 ? mrr / customers : 0,
+			[monthsSeries[i]]: customers !== 0 ? mrr / customers : 0,
 		}
 		arpaSeries.push(arpaDatapoint)
 	}
@@ -202,24 +202,24 @@ const calculateARPA = async (df) => {
 }
 
 const calculateLifetimeValue = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var lifetimeValueSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var churnedCustomers = 0
 		var lastMonthCustomers = 0
 		var mrr = 0
 		var currentCustomers = 0
-		const currentTimeframe = timeSeries[i]
+		const currentMonth = monthsSeries[i]
 		for (let j = 0; j < df.length; j++) {
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			churnedCustomers += currentMrr === 0 && previousMrr !== 0 ? 1 : 0
 			lastMonthCustomers += previousMrr !== 0 ? 1 : 0
 			mrr += currentMrr
 			currentCustomers += currentMrr !== 0 ? 1 : 0
 		}
 		const lifetimeValueDatapoint = {
-			[currentTimeframe]:
+			[currentMonth]:
         churnedCustomers !== 0 && currentCustomers !== 0 ? (lastMonthCustomers / churnedCustomers) * (mrr / currentCustomers) : 0,
 		}
 		lifetimeValueSeries.push(lifetimeValueDatapoint)
@@ -227,9 +227,9 @@ const calculateLifetimeValue = async (df) => {
 	return lifetimeValueSeries
 }
 const calculateCustomers = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var customersSeries = []
-	timeSeries.forEach((element) => {
+	monthsSeries.forEach((element) => {
 		var sum = 0
 		for (let i = 0; i < df.length; i++) {
 			if (df[i][element] != 0) {
@@ -243,74 +243,74 @@ const calculateCustomers = async (df) => {
 }
 
 const calculateNewCustomers = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var newCustomersSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var sum = 0
-		let currentTimeframe
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			sum += previousMrr === 0 && currentMrr !== 0 ? 1 : 0
 		}
-		const newCustomerDatapoint = { [currentTimeframe]: sum }
+		const newCustomerDatapoint = { [currentMonth]: sum }
 		newCustomersSeries.push(newCustomerDatapoint)
 	}
 	return newCustomersSeries
 }
 
 const calculateChurnedCustomers = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var churnedCustomersSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var sum = 0
-		let currentTimeframe
+		let currentMonth
 		for (let j = 0; j < df.length; j++) {
-			currentTimeframe = timeSeries[i]
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			currentMonth = monthsSeries[i]
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			sum += previousMrr !== 0 && currentMrr === 0 ? -1 : 0
 		}
-		const churnedCustomerDatapoint = { [currentTimeframe]: sum }
+		const churnedCustomerDatapoint = { [currentMonth]: sum }
 		churnedCustomersSeries.push(churnedCustomerDatapoint)
 	}
 	return churnedCustomersSeries
 }
 
 const calculateNetDollarRetention = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var netDollarRetentionSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var sum = 0
 		var previousSum = 0
 		for (let j = 0; j < df.length; j++) {
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			sum += previousMrr !== 0 ? currentMrr : 0
 			previousSum += previousMrr !== 0 ? previousMrr : 0
 		}
 		const netDollarRetentionDatapoint = {
-			[timeSeries[i]]: previousSum !== 0 ? sum / previousSum : 0,
+			[monthsSeries[i]]: previousSum !== 0 ? sum / previousSum : 0,
 		}
 		netDollarRetentionSeries.push(netDollarRetentionDatapoint)
 	}
 	return netDollarRetentionSeries
 }
 const calculateNetMrrChurnRate = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var netMrrChurnRateSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var sum = 0
 		var previousSum = 0
 		for (let j = 0; j < df.length; j++) {
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			sum += previousMrr !== 0 ? previousMrr - currentMrr : 0
 			previousSum += previousMrr !== 0 ? previousMrr : 0
 		}
 		const netMrrChurnRateDatapoint = {
-			[timeSeries[i]]: previousSum !== 0 ? sum / previousSum : 0,
+			[monthsSeries[i]]: previousSum !== 0 ? sum / previousSum : 0,
 		}
 		netMrrChurnRateSeries.push(netMrrChurnRateDatapoint)
 	}
@@ -318,20 +318,20 @@ const calculateNetMrrChurnRate = async (df) => {
 }
 
 const calculateGrossMrrChurnRate = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var grossMrrChurnRateSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var sum = 0
 		var previousSum = 0
 		for (let j = 0; j < df.length; j++) {
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			sum +=
         previousMrr !== 0 && previousMrr > currentMrr ? previousMrr - currentMrr : 0
 			previousSum += previousMrr !== 0 ? previousMrr : 0
 		}
 		const grossMrrChurnRateDatapoint = {
-			[timeSeries[i]]: previousSum !== 0 ? sum / previousSum : 0,
+			[monthsSeries[i]]: previousSum !== 0 ? sum / previousSum : 0,
 		}
 		grossMrrChurnRateSeries.push(grossMrrChurnRateDatapoint)
 	}
@@ -342,30 +342,30 @@ const calculateCAC = async (df) => {
 	const relevantItemsArray = df.filter(
 		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
 	)
-	const timeSeries = generateTimeArray(relevantItemsArray)
+	const monthsSeries = generateTimeArray(relevantItemsArray)
 	let cacSeries = []
-	for (let i = 0; i < timeSeries.length; i++) {
+	for (let i = 0; i < monthsSeries.length; i++) {
 		let sum = 0
 		for (let j = 0; j < relevantItemsArray.length; j++) {
-			const currentCAC = parseFloat(relevantItemsArray[j][timeSeries[i]])
+			const currentCAC = parseFloat(relevantItemsArray[j][monthsSeries[i]])
 			sum += currentCAC
 		}
-		const CACDatapoint = { [timeSeries[i]]: sum }
+		const CACDatapoint = { [monthsSeries[i]]: sum }
 		cacSeries.push(CACDatapoint)
 	}
 	return cacSeries
 }
 
 const calculateRunway = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	let runwaySeries = []
-	for (let i = 0; i < timeSeries.length; i++) {
-		const currentOutflow = parseFloat(df[1][timeSeries[i]])
-		const currentInflow = parseFloat(df[0][timeSeries[i]])
+	for (let i = 0; i < monthsSeries.length; i++) {
+		const currentOutflow = parseFloat(df[1][monthsSeries[i]])
+		const currentInflow = parseFloat(df[0][monthsSeries[i]])
 		const currentNetBurn = currentOutflow - currentInflow
 		const runwayDatapoint = {
-			[timeSeries[i]]:
-        currentNetBurn >= 0 ? df[2][timeSeries[i]] / currentNetBurn : 0,
+			[monthsSeries[i]]:
+        currentNetBurn >= 0 ? df[2][monthsSeries[i]] / currentNetBurn : 0,
 		}
 		runwaySeries.push(runwayDatapoint)
 	}
@@ -373,46 +373,36 @@ const calculateRunway = async (df) => {
 }
 
 const calculateCACPaybackPeriod = async (costDf, revenueDf) => {
-	// filter out S&M costs
 	const costArray = costDf.filter(
 		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
 	)
-	// timeArray for CAC
-	const timeSeries = generateTimeArray(costArray)
-	// timeArray for ARPA
-	// const timeSeriesARPA = generateTimeArray(revenue);
+	const monthsSeries = generateTimeArray(costArray)
 	let cacSeries = []
 	let arpaSeries = []
 
-	for (let i = 0; i < timeSeries.length; i++) {
+	for (let i = 0; i < monthsSeries.length; i++) {
 		let totalCAC = 0
 		let mrr = 0
 		let customers = 0
 
-		// CAC calculation
-
 		for (let j = 0; j < costArray.length; j++) {
-			const currentCAC = parseFloat(costArray[j][timeSeries[i]])
+			const currentCAC = parseFloat(costArray[j][monthsSeries[i]])
 			totalCAC += currentCAC
 		}
-		const CACDatapoint = { [timeSeries[i]]: totalCAC }
+		const CACDatapoint = { [monthsSeries[i]]: totalCAC }
 		cacSeries.push(CACDatapoint)
 
-		// ARPA calculation (mrr / no. of accounts)
 		for (let k = 0; k < revenueDf.length; k++) {
-			const currentMrr = parseFloat(revenueDf[k][timeSeries[i]])
+			const currentMrr = parseFloat(revenueDf[k][monthsSeries[i]])
 			mrr += currentMrr
 			customers += currentMrr !== 0 ? 1 : 0
 		}
 		const arpaDatapoint = {
-			[timeSeries[i]]: customers !== 0 ? mrr / customers : 0,
+			[monthsSeries[i]]: customers !== 0 ? mrr / customers : 0,
 		}
 		arpaSeries.push(arpaDatapoint)
 	}
-	// cacseries = [{ Jan22: 2 },4,6]
-	// [2]
-	// arpaseries = [4,8,10]
-	// CAC Payback Period Calculation
+
 	const cacPaybackPeriodSeries = cacSeries.map((datapoint, i) => {
 		return {
 			[Object.keys(datapoint)[0]]:
@@ -421,6 +411,7 @@ const calculateCACPaybackPeriod = async (costDf, revenueDf) => {
 	})
 	return cacPaybackPeriodSeries
 }
+
 const calculateMetricAndWriteToDatabase = async (func, df, company) => {
 	const res = await func(df)
 	const dbRes = await writeMetricToDatabase(func, company, res)
@@ -428,21 +419,21 @@ const calculateMetricAndWriteToDatabase = async (func, df, company) => {
 }
 
 const calculateQuickRatio = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	var quickRatioSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		var churnedAndContractionMrr = 0
 		var newAndExpansionMrr = 0
 		for (let j = 0; j < df.length; j++) {
-			const currentMrr = parseFloat(df[j][timeSeries[i]])
-			const previousMrr = parseFloat(df[j][timeSeries[i - 1]])
+			const currentMrr = parseFloat(df[j][monthsSeries[i]])
+			const previousMrr = parseFloat(df[j][monthsSeries[i - 1]])
 			churnedAndContractionMrr +=
         (previousMrr !== 0) && (previousMrr > currentMrr) ? (previousMrr - currentMrr) : 0
 			newAndExpansionMrr +=
         previousMrr < currentMrr ? (currentMrr - previousMrr) : 0
 		}
 		const quickRatioDatapoint = {
-			[timeSeries[i]]: (churnedAndContractionMrr !== 0)
+			[monthsSeries[i]]: (churnedAndContractionMrr !== 0)
 				? (newAndExpansionMrr / churnedAndContractionMrr)
 				: 0
 		}
@@ -452,35 +443,35 @@ const calculateQuickRatio = async (df) => {
 }
 
 const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
-	const timeSeries = generateTimeArray(dfRevenue)
+	const monthsSeries = generateTimeArray(dfRevenue)
 	const relevantItemsArray = dfCosts.filter(
 		(item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll'
 	)
 	var lifetimeValueCACRatioSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		let CACSum = 0
 		var churnedCustomers = 0
 		var lastMonthCustomers = 0
 		var mrr = 0
 		var currentCustomers = 0
-		const currentTimeframe = timeSeries[i]
+		const currentMonth = monthsSeries[i]
 	
 		for (let j = 0; j < dfRevenue.length; j++) {
-			const currentMrr = parseFloat(dfRevenue[j][timeSeries[i]])
-			const previousMrr = parseFloat(dfRevenue[j][timeSeries[i - 1]])
+			const currentMrr = parseFloat(dfRevenue[j][monthsSeries[i]])
+			const previousMrr = parseFloat(dfRevenue[j][monthsSeries[i - 1]])
 			churnedCustomers += currentMrr === 0 && previousMrr !== 0 ? 1 : 0
 			lastMonthCustomers += previousMrr !== 0 ? 1 : 0
 			mrr += currentMrr
 			currentCustomers += currentMrr !== 0 ? 1 : 0
 		}
 		for (let k = 0; k < relevantItemsArray.length; k++) {
-			const currentCAC = parseFloat(relevantItemsArray[k][timeSeries[i]])
+			const currentCAC = parseFloat(relevantItemsArray[k][monthsSeries[i]])
 			CACSum += currentCAC
 		}
 		const lifetimeValueDatapoint = (churnedCustomers !== 0 && currentCustomers !== 0) ? (lastMonthCustomers / churnedCustomers) * (mrr / currentCustomers) : 0
 		const CACDatapoint = CACSum
 		const lifetimeValueCACRatioDatapoint = {
-			[currentTimeframe]: CACDatapoint !== 0 ? lifetimeValueDatapoint / CACDatapoint : 0
+			[currentMonth]: CACDatapoint !== 0 ? lifetimeValueDatapoint / CACDatapoint : 0
 		} 
 		lifetimeValueCACRatioSeries.push(lifetimeValueCACRatioDatapoint)
 	}
@@ -488,15 +479,15 @@ const calculateLtvCACRatio = async (dfRevenue, dfCosts) => {
 } 
 
 const calculateCohortRetention = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	let cohortRetention = []
-	for (let i = 0; i < timeSeries.length; i++) {
-		const currentCohortMonth = timeSeries[i]
+	for (let i = 0; i < monthsSeries.length; i++) {
+		const currentCohortMonth = monthsSeries[i]
 		let currentCohortData = {
 			[currentCohortMonth]: {}
 		}
-		for (let j = i; j < (timeSeries.length); j++) {
-			const currentMonth = timeSeries[j]
+		for (let j = i; j < (monthsSeries.length); j++) {
+			const currentMonth = monthsSeries[j]
 			const currentIndex = (j - i)
 			let cohortCount = 0
 			let currentMonthCount = 0
@@ -514,62 +505,57 @@ const calculateCohortRetention = async (df) => {
 }
 
 const calculateBurnMultiple = async (dfRevenue, dfCash) => {
-	const timeSeries = generateTimeArray(dfRevenue)
+	const monthsSeries = generateTimeArray(dfRevenue)
 	const cashRelevantData = dfCash.filter(element => element.Name == 'Cash Balance')
 	let burnMultipleSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		let netArrSum = 0
 		for (let j = 0; j < dfRevenue.length; j++) {
-			netArrSum += 12 * (parseFloat(dfRevenue[j][timeSeries[i]]) - parseFloat(dfRevenue[j][timeSeries[i-1]]))
+			netArrSum += 12 * (parseFloat(dfRevenue[j][monthsSeries[i]]) - parseFloat(dfRevenue[j][monthsSeries[i-1]]))
 		}
-		const netBurnSum = cashRelevantData[0][timeSeries[i]] - cashRelevantData[0][timeSeries[i - 1]]
-		const burnMultipleDatapoint = {[timeSeries[i]]: (netBurnSum !== 0) ? (netArrSum / netBurnSum) : 0}
+		const netBurnSum = cashRelevantData[0][monthsSeries[i]] - cashRelevantData[0][monthsSeries[i - 1]]
+		const burnMultipleDatapoint = {[monthsSeries[i]]: (netBurnSum !== 0) ? (netArrSum / netBurnSum) : 0}
 		burnMultipleSeries.push(burnMultipleDatapoint)
 	}
 	return burnMultipleSeries
 }
 
 const calculateNetBurn = async (df) => {
-	const timeSeries = generateTimeArray(df)
+	const monthsSeries = generateTimeArray(df)
 	const inflowData = df.filter(element => element.Name == 'Cash Inflow excluding Financing')
 	const outflowData = df.filter(element => element.Name == 'Cash Outflow')
 	let netBurnSeries = []
-	for (let i = 0; i < timeSeries.length; i++) {
-		const netBurnSum = inflowData[0][timeSeries[i]] - outflowData[0][timeSeries[i]]
-		const netBurnDatapoint = {[timeSeries[i]]: netBurnSum}
+	for (let i = 0; i < monthsSeries.length; i++) {
+		const netBurnSum = inflowData[0][monthsSeries[i]] - outflowData[0][monthsSeries[i]]
+		const netBurnDatapoint = {[monthsSeries[i]]: netBurnSum}
 		netBurnSeries.push(netBurnDatapoint)
 	}
 	return netBurnSeries
 }
 
 const calculateMagicNumber = async (dfRevenue, dfCosts) => {
-	const timeSeries = generateTimeArray(dfRevenue)
+	const monthsSeries = generateTimeArray(dfRevenue)
 	const costRelevantData = dfCosts.filter((item) => item.Name == 'S&M Spend' || item.Name == 'S&M Payroll')
 	let magicNumberSeries = []
-	for (let i = 1; i < timeSeries.length; i++) {
+	for (let i = 1; i < monthsSeries.length; i++) {
 		let netNewArrSum = 0
 		let cacSum = 0
 		for (let j = 0; j < dfRevenue.length; j++) {
-			netNewArrSum += 12 * (parseFloat(dfRevenue[j][timeSeries[i]]) - parseFloat(dfRevenue[j][timeSeries[i-1]]))
+			netNewArrSum += 12 * (parseFloat(dfRevenue[j][monthsSeries[i]]) - parseFloat(dfRevenue[j][monthsSeries[i-1]]))
 		}
 		for (let k = 0; k < costRelevantData.length; k++) {
-			cacSum += costRelevantData[k][timeSeries[i]]
+			cacSum += costRelevantData[k][monthsSeries[i]]
 		}
-		const magicNumberDatapoint = {[timeSeries[i]]: (cacSum !== 0) ? (netNewArrSum / cacSum) : 0}
+		const magicNumberDatapoint = {[monthsSeries[i]]: (cacSum !== 0) ? (netNewArrSum / cacSum) : 0}
 		magicNumberSeries.push(magicNumberDatapoint)
 	}
 	return magicNumberSeries
 }
 
-const calculateMetricWithTwoInputsAndWriteToDatabase = async (
-	func,
-	df1,
-	df2,
-	company
-) => {
-	const res = await func(df1, df2)
-	const dbRes = await writeMetricToDatabase(func, company, res)
-	return dbRes
+const calculateMetricWithTwoInputsAndWriteToDatabase = async (func, df1, df2, company) => {
+	const metricCalculationResult = await func(df1, df2)
+	const databaseWriteOperationResult = await writeMetricToDatabase(func, company, metricCalculationResult)
+	return databaseWriteOperationResult
 }
 
 const calculateAllMetricsAndWriteToDatabase = async (df, company) => {

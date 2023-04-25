@@ -3,9 +3,9 @@ const convertUploadedDataToDatabaseFormat = async (df) => {
 	for (let i = 0; i < df.length; i++) {
 		const { Name, ...rowValues } = df[i]
 		result[Name] = []
-		for (let val in rowValues) {
-			if (Object.prototype.hasOwnProperty.call(rowValues, val)) {
-				result[Name].push({[val]: parseFloat(rowValues[val])})
+		for (let rowHeader in rowValues) {
+			if (Object.prototype.hasOwnProperty.call(rowValues, rowHeader)) {
+				result[Name].push({[rowHeader]: parseFloat(rowValues[rowHeader])})
 			}
 		}
 	}
@@ -13,19 +13,19 @@ const convertUploadedDataToDatabaseFormat = async (df) => {
 }
 
 const convertDatabaseDataToProcessingFormat = async (df) => {
-	let result = []
+	let dataInProcessingFormat = []
 	for (let i = 0; i < Object.keys(df).length; i++) {
 		const key = Object.keys(df)[i]
-		let rowData = df[key]
-		let finalRow = {}
-		for (let j = 0; j < rowData.length; j++) {
-			finalRow = { ...finalRow, ...rowData[j]}
+		let rowDatapoint = df[key]
+		let finalRowData = {}
+		for (let j = 0; j < rowDatapoint.length; j++) {
+			finalRowData = { ...finalRowData, ...rowDatapoint[j]}
 		}
-		const tempName = { 'Name': key }
-		const mergedObj = { ...tempName, ...finalRow}
-		result.push(mergedObj)
+		const rowName = { 'Name': key }
+		const mergedData = { ...rowName, ...finalRowData}
+		dataInProcessingFormat.push(mergedData)
 	}
-	return result
+	return dataInProcessingFormat
 }
 
 module.exports = {

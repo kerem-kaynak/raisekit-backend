@@ -11,16 +11,6 @@ admin.initializeApp({
 
 const db = getFirestore()
 
-const writeOrUpdateDoc = async (data) => {
-	const newEntryRef = db.collection('Test Collection').doc('Test Doc') //todo: pass collection and doc name as parameters
-	await newEntryRef.set(data)
-}
-
-const deleteDoc = async () => {
-	const newEntryRef = db.collection('Test Collection').doc('Test Doc')
-	await newEntryRef.delete()
-}
-
 const writeUploadedRawDataToDatabase = async (company, body) => {
 	const fieldNames = {
 		revenue: 'revenue_data',
@@ -28,13 +18,13 @@ const writeUploadedRawDataToDatabase = async (company, body) => {
 		cash: 'cash_data',
 	}
 	const formattedData = await convertUploadedDataToDatabaseFormat(body.data)
-	const res = await db
+	const databaseUpdateResponse = await db
 		.collection('companies')
 		.doc(company)
 		.update({
 			[fieldNames[body.type]]: formattedData,
 		})
-	return res
+	return databaseUpdateResponse
 }
 
 const writeMetricToDatabase = async (func, company, metricRes) => {
@@ -66,13 +56,13 @@ const writeMetricToDatabase = async (func, company, metricRes) => {
 		calculateNetBurn: 'net_burn',
 		calculateMagicNumber: 'magic_number',
 	}
-	const reply = await db
+	const databaseSetResponse = await db
 		.collection('companies')
 		.doc(company)
 		.collection('metrics')
 		.doc(functionNameToMetricNameMap[func.name])
 		.set({ series: metricRes })
-	return reply
+	return databaseSetResponse
 }
 
 const fetchDataFromDatabase = async (company) => {
@@ -81,19 +71,17 @@ const fetchDataFromDatabase = async (company) => {
 }
 
 const fetchMetricsFromDatabase = async (company) => {
-	const fetchedMetrics = (await db.collection('companies').doc(company).collection('metrics').get())
-	let res = fetchedMetrics.docs.map(doc => {
+	const rawDataFromDatabase = (await db.collection('companies').doc(company).collection('metrics').get())
+	let fetchedMetricsData = rawDataFromDatabase.docs.map(doc => {
 		return {
 			name: doc.id,
 			data: doc.data()
 		}
 	})
-	return res
+	return fetchedMetricsData
 }
 
 module.exports = {
-	writeOrUpdateDoc,
-	deleteDoc,
 	writeUploadedRawDataToDatabase,
 	writeMetricToDatabase,
 	fetchDataFromDatabase,
