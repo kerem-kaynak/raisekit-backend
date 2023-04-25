@@ -1,3 +1,5 @@
+const validator = require('validator');
+
 const convertUploadedDataToDatabaseFormat = async (df) => {
 	let result = {}
 	for (let i = 0; i < df.length; i++) {
@@ -5,7 +7,7 @@ const convertUploadedDataToDatabaseFormat = async (df) => {
 		result[Name] = []
 		for (let rowHeader in rowValues) {
 			if (Object.prototype.hasOwnProperty.call(rowValues, rowHeader)) {
-				result[Name].push({[rowHeader]: parseFloat(rowValues[rowHeader])})
+				result[Name].push({ [rowHeader]: parseFloat(rowValues[rowHeader]) })
 			}
 		}
 	}
@@ -19,16 +21,33 @@ const convertDatabaseDataToProcessingFormat = async (df) => {
 		let rowDatapoint = df[key]
 		let finalRowData = {}
 		for (let j = 0; j < rowDatapoint.length; j++) {
-			finalRowData = { ...finalRowData, ...rowDatapoint[j]}
+			finalRowData = { ...finalRowData, ...rowDatapoint[j] }
 		}
 		const rowName = { 'Name': key }
-		const mergedData = { ...rowName, ...finalRowData}
+		const mergedData = { ...rowName, ...finalRowData }
 		dataInProcessingFormat.push(mergedData)
 	}
-	return dataInProcessingFormat
+	return result
+}
+
+const sanitizeData = async (df) => {
+	console.log("before sanitization: ", df)
+	const sanitizedData = []
+
+	for (const row of df) {
+		const sanitizedRow = {}
+		for (const [key, value] of Object.entries(row)) {
+			const sanitizedKey = validator.escape(key)
+			sanitizedRow[sanitizedKey] = value
+		}
+		sanitizedData.push(sanitizedRow)
+	}
+	console.log("sanitized: ", sanitizedData)
+	return sanitizedData
 }
 
 module.exports = {
 	convertUploadedDataToDatabaseFormat,
-	convertDatabaseDataToProcessingFormat
+	convertDatabaseDataToProcessingFormat,
+	sanitizeData
 }
