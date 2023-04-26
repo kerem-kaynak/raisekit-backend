@@ -11,8 +11,8 @@ const { checkIfAuthenticated } = require('./helpers/auth/auth')
 const registerCors = async () => {await fastify.register(cors, { 
 	origin: true,
 	methods: ['GET'],
-	//methods: ['GET', 'POST']
-//	allowedHeaders: ['Content-Type', 'Authorization']
+	methods: ['GET', 'POST'],
+	allowedHeaders: ['Content-Type', 'Authorization']
 })}
 
 registerCors()
