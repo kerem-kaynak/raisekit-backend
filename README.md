@@ -66,11 +66,11 @@ Link to frontend repo: 	[Raisekit frontend](https://github.com/Raisekit/raisekit
 |**Authentication**|XSS attacks|HTML sanitization in user input login fields using [DOMPurify](https://www.npmjs.com/package/dompurify) library.||
 |||Encode user input with [he](https://www.npmjs.com/package/he) library.||
 |||Sanitization with [xss](https://www.npmjs.com/package/xss) library. Another sanitizer for potentially untrusted HTML.||
-|**CSV file upload**|Malicious file upload|Check the uploaded file's MIME type|[commit-545aebe](https://github.com/Raisekit/raisekit-frontend/commit/545aebec23b6b4aad05909646d3c28d14047fb44)|
-|||Reject files with multiple extensions or unexpected extensions|[commit-97a1669](https://github.com/Raisekit/raisekit-frontend/commit/97a16696af1f8549d0f0605e4702ac16c5166260)|
-||CSV injection|Validate and sanitize input: use [validator](https://www.npmjs.com/package/validator), a sanitization library to escape any potentially harmful characters or strings within the input data|[commit-7bcd524](https://github.com/Raisekit/raisekit-backend/commit/7bcd5240de4b884fedf77ea85dacba412671dcee)|
+|**CSV file upload**|Malicious file upload|Check the uploaded file's MIME type|[commit-545aebe](https://github.com/Raisekit/raisekit-frontend/commit/545aebec23b6b4aad05909646d3c28d14047fb44) (done by Sijia)|
+|||Reject files with multiple extensions or unexpected extensions|[commit-97a1669](https://github.com/Raisekit/raisekit-frontend/commit/97a16696af1f8549d0f0605e4702ac16c5166260) (done by Sijia)|
+||CSV injection|Validate and sanitize input: use [validator](https://www.npmjs.com/package/validator), a sanitization library to escape any potentially harmful characters or strings within the input data|[commit-7bcd524](https://github.com/Raisekit/raisekit-backend/commit/7bcd5240de4b884fedf77ea85dacba412671dcee) (done by Sijia)|
 ||DoS attacks|Limit the file size|[commit-ec237fa](https://github.com/Raisekit/raisekit-frontend/commit/ec237faf9c75d57c8899d74dbbee757019c6dc0f) (done by Berk)|
-|||Set timeouts for uploading CSV files|[commit-9b39235](https://github.com/Raisekit/raisekit-frontend/pull/22/commits/9b392350cdeee2a07166830ea45c8feb7a4818d4)|
+|||Set timeouts for uploading CSV files|[commit-9b39235](https://github.com/Raisekit/raisekit-frontend/pull/22/commits/9b392350cdeee2a07166830ea45c8feb7a4818d4) (done by Sijia)|
 ||Leverage of privilege|Only allow authorized user to upload|[commit-f16b23e](https://github.com/Raisekit/raisekit-backend/commit/f16b23edb5f8165813e0a83641ff344b33331099) (done by Kerem)|
 
 
