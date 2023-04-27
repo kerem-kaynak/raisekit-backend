@@ -75,4 +75,11 @@ Link to frontend repo: 	[Raisekit frontend](https://github.com/Raisekit/raisekit
 
 
 
+** **
+** **
 ### Next steps
+
+- **HTTP Access control (CORS)**: define HTTP headers to specify which domains are allowed to make requests to the backend and using which methods.
+- Rate limiting: set a maximum amount of requests that can be done to our system in a specific period of time. This will protect the app from DDoS attacks.
+- **Firewall**: GCP enables us to implement a series of Firewall rules. With this rules we can specify source and destination IP addresses, ports, and protocols and control traffic based on these. We can also implement network segmentation.
+- **Penetration Testing**: After the application is developed further and a solid cyber security measure are implemented, we can come up with a malicious version of the Threath Model, that we will use to identify, with some added creativity, possible non-secured entry points to the application.
