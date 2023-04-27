@@ -9,7 +9,8 @@ const { fetchMetricsFromDatabase } = require('./helpers/db/databaseOps')
 const { checkIfAuthenticated } = require('./helpers/auth/auth')
 
 const registerCors = async () => {await fastify.register(cors, { 
-	origin: true,
+	//origin: true,
+	origin: 'https://app.raisekit.io/',
 	methods: ['GET', 'POST'],
 	allowedHeaders: ['Content-Type', 'Authorization']
 })}
