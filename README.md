@@ -63,9 +63,9 @@ Link to frontend repo: 	[Raisekit frontend](https://github.com/Raisekit/raisekit
 
 |Entry Points|Threats|Mitigation|Implementation|
 | ----------- | ----------- | ----------- | ----------- |
-|**Authentication**|XSS attacks|HTML sanitization in user input login fields using [DOMPurify](https://www.npmjs.com/package/dompurify) library.||
-|||Encode user input with [he](https://www.npmjs.com/package/he) library.||
-|||Sanitization with [xss](https://www.npmjs.com/package/xss) library. Another sanitizer for potentially untrusted HTML.||
+|**Authentication**|XSS attacks|HTML sanitization in user input login fields using [DOMPurify](https://www.npmjs.com/package/dompurify) library. | [commit-6edbd8c](https://github.com/Raisekit/raisekit-frontend/pull/18/commits) (done by Laura) ||
+|||Encode user input with [he](https://www.npmjs.com/package/he) library. | [commit-6edbd8c](https://github.com/Raisekit/raisekit-frontend/pull/18/commits) (done by Laura) ||
+|||Sanitization with [xss](https://www.npmjs.com/package/xss) library. Another sanitizer for potentially untrusted HTML. | [commit-f81a875](https://github.com/Raisekit/raisekit-frontend/pull/18/commits/f81a8751107f228069753944e84e47ff6a1458d4) (done by Laura) ||
 |**CSV file upload**|Malicious file upload|Check the uploaded file's MIME type|[commit-545aebe](https://github.com/Raisekit/raisekit-frontend/commit/545aebec23b6b4aad05909646d3c28d14047fb44) (done by Sijia)|
 |||Reject files with multiple extensions or unexpected extensions|[commit-97a1669](https://github.com/Raisekit/raisekit-frontend/commit/97a16696af1f8549d0f0605e4702ac16c5166260) (done by Sijia)|
 ||CSV injection|Validate and sanitize input: use [validator](https://www.npmjs.com/package/validator), a sanitization library to escape any potentially harmful characters or strings within the input data|[commit-7bcd524](https://github.com/Raisekit/raisekit-backend/commit/7bcd5240de4b884fedf77ea85dacba412671dcee) (done by Sijia)|
