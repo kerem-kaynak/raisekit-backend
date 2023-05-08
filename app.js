@@ -18,7 +18,7 @@ registerCors()
 fastify.route({
 	method: 'POST',
 	url: '/api/v0/upload_new_data',
-	preHandler: checkIfAuthenticated,
+	// preHandler: checkIfAuthenticated,
 	handler: async function (req, res) {
 		try {
 			await calculateAllMetricsAndWriteToDatabase(req.body, req.body.company)
