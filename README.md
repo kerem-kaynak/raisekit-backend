@@ -38,7 +38,7 @@ npm run dev
 ```
 docker compose up --build
 ```
-## Raisekit in production
+## Raisekit in production (Currently down)
 You can use Raisekit in production at https://app.raisekit.io
 
 
